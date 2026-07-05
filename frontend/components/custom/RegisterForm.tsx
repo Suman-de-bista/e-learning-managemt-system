@@ -3,8 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { registerFormSchema, RegisterFormType } from "@/lib/types/auths";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 
 export default function RegisterForm() {
+    const form = useForm<RegisterFormType>({
+            resolver: zodResolver(registerFormSchema),
+            defaultValues: {
+                name:'',
+                email: '',
+                password: '',
+                confirmPassword: '',
+            }
+        })
+    
+    const onRegisterSubmit = (data: RegisterFormType) => {
+        console.log(data);
+    }
     return (
         <div className="w-full max-w-sm">
             <Card className="w-full max-w-sm">
@@ -15,55 +32,105 @@ export default function RegisterForm() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form>
-                        <div className="flex flex-col gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name" className="font-bold">Name</Label>
-                                <Input
-                                    id="name"
-                                    className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                    type="name"
-                                    placeholder="User Name"
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="email" className="font-bold">Email</Label>
-                                <Input
-                                    id="email"
-                                    className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                    type="email"
-                                    placeholder="example@example.com"
-                                    required
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password" className="font-bold">Password</Label>
-                                </div>
-                                <Input
-                                    id="password"
-                                    className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                    type="password"
-                                    required
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                            <div className="flex items-center">
-                                <Label htmlFor="confirmPassword" className="font-bold">Confirm Password</Label>
-                            </div>
-                            <Input
-                                id="confirmPassword"
-                                className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                type="password"
-                                required
-                                placeholder="••••••••"
+                    <form id="registerForm" onSubmit={form.handleSubmit(onRegisterSubmit)}>
+                        <FieldGroup>
+                            <Controller
+                                name="name"
+                                control={form.control}
+                                render={({field,fieldState}) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="register-form-name">
+                                            Name
+                                        </FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="register-form-name"
+                                            className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                            type="text"
+                                            placeholder="User Name"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} className="text-red-400" />
+                                        )}
+                                    </Field>
+                                )}
                             />
-                        </div>
+                            <Controller
+                                name="email"
+                                control={form.control}
+                                render={({field,fieldState}) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="register-form-email">
+                                            Email
+                                        </FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="register-form-email"
+                                            className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                            type="email"
+                                            placeholder="example@example.com"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} className="text-red-400" />
+                                        )}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="password"
+                                control={form.control}
+                                render={({field,fieldState}) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="register-form-password">
+                                            Password
+                                        </FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="register-form-password"
+                                            className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                            type="password"
+                                            placeholder="••••••••"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} className="text-red-400" />
+                                        )}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="confirmPassword"
+                                control={form.control}
+                                render={({field,fieldState}) => (
+                                    <Field data-invalid={fieldState.invalid}>
+                                        <FieldLabel htmlFor="register-form-confirmPassword">
+                                            Confirm Password
+                                        </FieldLabel>
+                                        <Input
+                                            {...field}
+                                            id="register-form-confirmPassword"
+                                            className="w-full bg-gray-100 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                            type="password"
+                                            placeholder="••••••••"
+                                            aria-invalid={fieldState.invalid}
+                                            autoComplete="off"
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[fieldState.error]} className="text-red-400" />
+                                        )}
+                                    </Field>
+                                )}
+                            />
+                        </FieldGroup>
                     </form>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                    <Button type="submit" className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <Button type="submit" form="registerForm" className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                         Register
                     </Button>
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -76,4 +143,4 @@ export default function RegisterForm() {
             </Card>
         </div>
     );
-}
+}   
