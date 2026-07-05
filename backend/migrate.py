@@ -3,7 +3,7 @@ from pathlib import Path
 
 import asyncpg
 
-from backend.app.config import DATABASE_URL
+from backend.config import DATABASE_URL
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
 

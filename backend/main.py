@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
-from backend.app.database import close_db, connect_db
+from database import close_db, connect_db
+from app.routes.auths import router as users_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,6 +26,9 @@ app.add_middleware(
     allow_methods=["*"],            
     allow_headers=["*"],              
 )
+
+
+app.include_router(users_router)
 
 
 @app.get("/")

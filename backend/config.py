@@ -12,3 +12,4 @@ DATABASE_URL: str = getenv(
 
 DATABASE_MIN_SIZE: int = int(getenv("DATABASE_MIN_SIZE", "2"))
 DATABASE_MAX_SIZE: int = int(getenv("DATABASE_MAX_SIZE", "5"))
+
