@@ -1,44 +1,59 @@
-from pydantic import BaseModel,ConfigDict
-from asyncpg import Connection
+from pydantic import BaseModel, ConfigDict
 
-class AuthModel(BaseModel):
+from database import get_db
+
+
+class UserModel(BaseModel):
     id: int
     name: str
     email: str
     password: str
 
-    model_config = ConfigDict(from_attributes=True,extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
 
 class SignupModel(BaseModel):
     name: str
     email: str
     password: str
 
+
 class LoginModel(BaseModel):
     email: str
     password: str
 
-class AuthTable:
-    async def add_new_user(self,conn: Connection,email:str,name:str,password_hash:str):
-        row = await conn.fetchrow(
-            """INSERT INTO users (email, name, password)
-               VALUES ($1, $2, $3)
-               RETURNING id, name, email""",
-            email, name, password_hash,
-        )
-        return AuthModel.model_validate(**row)
-    
+class UserResponseModel(BaseModel):
+    id: int
+    name: str
+    email: str
 
-    async def get_users(self,conn: Connection):
-        rows = await conn.fetch(
-            """SELECT * FROM users"""
-        )
-        return [AuthModel.model_validate(**row) for row in rows]
-    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
-    async def get_user_by_email(self, conn:Connection,email:str):
-        row = await conn.fetchrow(
-            """SELECT * FROM users WHERE email = $1""",
-            email,
-        )
-        return AuthModel.model_validate(**row) if row else None
+class UserTable:
+    async def add_new_user(self, email: str, name: str, password_hash: str):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                """INSERT INTO users (email, name, password)
+                   VALUES ($1, $2, $3)
+                   RETURNING id, name, email""",
+                email,
+                name,
+                password_hash,
+            )
+            return UserResponseModel.model_validate(row)
+
+    async def get_users(self):
+        async with get_db() as conn:
+            rows = await conn.fetch("""SELECT id, name, email FROM users""")
+            return [UserResponseModel.model_validate(row) for row in rows]
+
+    async def get_user_by_email(self, email: str):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                """SELECT id, name, email FROM users WHERE email = $1""",
+                email,
+            )
+            return UserResponseModel.model_validate(row) if row else None
+        
+
+Users = UserTable()
