@@ -7,8 +7,12 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginFormSchema } from "@/lib/types/auths";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { loginUser } from "@/lib/apis/auths";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+    const router = useRouter();
+
     const form = useForm<LoginFormType>({
         resolver: zodResolver(loginFormSchema),
         defaultValues: {
@@ -17,8 +21,9 @@ export default function LoginForm() {
         }
     })
 
-    const onLoginSubmit = (data: LoginFormType) => {
-        console.log(data);
+    const onLoginSubmit = async (data: LoginFormType) => {
+        await loginUser(data);
+        router.push('/dashboard');
     }
 
     return (
@@ -84,8 +89,8 @@ export default function LoginForm() {
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
                     <Field orientation="horizontal">
-                        <Button type="submit" form="loginForm" className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                            Login
+                        <Button type="submit" form="loginForm" disabled={form.formState.isSubmitting} className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            {form.formState.isSubmitting ? "Signing in..." : "Login"}
                         </Button>
                     </Field>
                     <span className="text-sm text-muted-foreground flex items-center gap-1">

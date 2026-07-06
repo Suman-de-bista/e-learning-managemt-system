@@ -7,8 +7,12 @@ import { registerFormSchema, RegisterFormType } from "@/lib/types/auths";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { registerUser } from "@/lib/apis/auths";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+    const router = useRouter();
+
     const form = useForm<RegisterFormType>({
             resolver: zodResolver(registerFormSchema),
             defaultValues: {
@@ -18,9 +22,10 @@ export default function RegisterForm() {
                 confirmPassword: '',
             }
         })
-    
-    const onRegisterSubmit = (data: RegisterFormType) => {
-        console.log(data);
+
+    const onRegisterSubmit = async (data: RegisterFormType) => {
+        await registerUser(data);
+        router.push('/');
     }
     return (
         <div className="w-full max-w-sm">
@@ -130,8 +135,8 @@ export default function RegisterForm() {
                     </form>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
-                    <Button type="submit" form="registerForm" className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                        Register
+                    <Button type="submit" form="registerForm" disabled={form.formState.isSubmitting} className="w-full border-none text-white bg-blue-500 hover:bg-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        {form.formState.isSubmitting ? "Signing up..." : "Register"}
                     </Button>
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                         Already have an account?
