@@ -16,6 +16,7 @@ class SignupModel(BaseModel):
     name: str
     email: str
     password: str
+    confirmPassword: str
 
 
 class LoginModel(BaseModel):
@@ -40,12 +41,20 @@ class UserTable:
                 name,
                 password_hash,
             )
-            return UserResponseModel.model_validate(row)
+            return UserResponseModel.model_validate(dict(row))
 
     async def get_users(self):
         async with get_db() as conn:
             rows = await conn.fetch("""SELECT id, name, email FROM users""")
-            return [UserResponseModel.model_validate(row) for row in rows]
+            return [UserResponseModel.model_validate(dict(row)) for row in rows]
+
+    async def get_auth_by_email(self, email: str):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                """SELECT id, name, email, password FROM users WHERE email = $1""",
+                email,
+            )
+            return UserModel.model_validate(dict(row)) if row else None
 
     async def get_user_by_email(self, email: str):
         async with get_db() as conn:
@@ -53,7 +62,7 @@ class UserTable:
                 """SELECT id, name, email FROM users WHERE email = $1""",
                 email,
             )
-            return UserResponseModel.model_validate(row) if row else None
+            return UserResponseModel.model_validate(dict(row)) if row else None
         
 
 Users = UserTable()

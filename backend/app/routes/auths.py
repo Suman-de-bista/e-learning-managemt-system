@@ -1,6 +1,7 @@
-from app.utils.auths import create_token, create_token, get_password_hash, validate_email_format, verify_password
-from fastapi import APIRouter, HTTPException
+from app.utils.auths import create_token, create_token, get_password_hash, get_user, validate_email_format, verify_password
+from fastapi import APIRouter, HTTPException, Depends
 from passlib.context import CryptContext
+from fastapi import Response
 
 from app.models.users import Users, LoginModel, SignupModel
 
@@ -9,7 +10,7 @@ pwd_context = CryptContext(schemes=["bcrypt"])
 
 
 @router.post("/signup")
-async def signup(form_data: SignupModel):
+async def signup(response:Response,form_data: SignupModel):
     try:
         if not validate_email_format(form_data.email):
             raise HTTPException(400, detail="Invalid email format")
@@ -23,7 +24,15 @@ async def signup(form_data: SignupModel):
                     "name": user.name
                 }
                 token = create_token(payload)
-                return {**user.model_dump(), "token": token}
+                response.set_cookie(
+                    key="access_token",
+                    value=token,
+                    httponly=True,
+                    secure=True,
+                    samesite="None",
+                    max_age=15 * 60,
+                )
+                return user
         raise HTTPException(400, detail="Email Already Exists")
     except ValueError as e:
         raise HTTPException(400, detail=str(e))
@@ -32,20 +41,41 @@ async def signup(form_data: SignupModel):
 
 
 @router.post("/login")
-async def login(form_data: LoginModel):
+async def login(response:Response,form_data: LoginModel):
     try:
         if not validate_email_format(form_data.email):
             raise HTTPException(401, detail="Invalid email format")
-        user = Users.get_auth_by_email(form_data.email)
+        user = await Users.get_auth_by_email(form_data.email)
         if not user:
             raise HTTPException(401, detail="Email does not exist")
-        if not verify_password(form_data.password,user.password):
+        if not verify_password(form_data.password, user.password):
             raise HTTPException(401, detail="Incorrect password")
-        user_details = Users.get_user_by_email(form_data.email)
-        token = create_token(user_details)
-        return {**user_details.model_dump(), "token": token}
+        payload = {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name
+        }
+        token = create_token(payload)
+        response.set_cookie(
+                    key="access_token",
+                    value=token,
+                    httponly=True,
+                    secure=True,
+                    samesite="None",
+                    max_age=15 * 60,
+                )
+        return user
         
     except Exception as e:
-        raise HTTPException(401, detail=e.detail) 
+        raise HTTPException(401, detail=str(e)) 
 
 
+@router.get("/me")
+async def get_current_user(user = Depends(get_user)):
+    return user
+
+
+@router.post("/logout")
+async def logout(response:Response):
+    response.delete_cookie(key="access_token")
+    return {"message": "Logged out successfully"}
