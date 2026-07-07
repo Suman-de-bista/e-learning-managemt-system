@@ -42,7 +42,7 @@ def decode_token(token: str):
         raise Exception("Invalid token")
     
 
-def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(bearer_security))->UserModel:
+async def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(bearer_security))->UserModel:
     token = None
     
     if auth_token is not None:
@@ -57,7 +57,7 @@ def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(b
     try:
         data = decode_token(token)
         if data is not None and "email" in data:
-            user = Users.get_user_by_email(data["email"])
+            user = await Users.get_user_by_email(data["email"])
             if user is None:
                 raise HTTPException(
                     status_code=401,
