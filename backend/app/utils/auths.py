@@ -48,8 +48,8 @@ def get_user(request:Request,auth_token:HTTPAuthorizationCredentials = Depends(b
     if auth_token is not None:
         token = auth_token.credentials
     
-    if token is None and "token" in request.cookies:
-        token = request.cookies.get("token")
+    if token is None and "access_token" in request.cookies:
+        token = request.cookies.get("access_token")
 
     if token is None:
         raise HTTPException(status_code=403, detail="Not authenticated")
