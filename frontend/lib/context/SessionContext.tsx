@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User } from "../types/users";
+import { User } from "../types/common";
 import { getCurrentUser, logoutUser } from "../apis/auths";
 
 const SessionContext = createContext<{

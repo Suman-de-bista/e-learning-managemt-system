@@ -1,6 +1,6 @@
 import { BASE_URL } from "@/lib/constants";
 import { LoginFormType, RegisterFormType } from "@/lib/types/auths";
-import { User } from "@/lib/types/users";
+import { User } from "@/lib/types/common";
 
 async function parseErrorMessage(res: Response): Promise<string> {
   try {
