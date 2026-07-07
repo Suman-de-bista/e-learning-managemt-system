@@ -3,9 +3,9 @@ from pathlib import Path
 
 import asyncpg
 
-from backend.config import DATABASE_URL
+from config import DATABASE_URL
 
-MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
+MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
 async def run_migrations():
     conn = await asyncpg.connect(DATABASE_URL)
@@ -18,7 +18,8 @@ async def run_migrations():
         """)
 
         applied = {r["filename"] for r in await conn.fetch("SELECT filename FROM schema_migrations")}
-        print(list(MIGRATIONS_DIR.glob("*.sql")))
+        print(f"Applied migrations: {sorted(applied)}")
+        print(f"Available migrations: {sorted(f.name for f in MIGRATIONS_DIR.glob('*.sql'))}")
         for file in sorted(MIGRATIONS_DIR.glob("*.sql")):
             if file.name in applied:
                 continue
