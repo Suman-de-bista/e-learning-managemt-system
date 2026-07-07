@@ -13,7 +13,7 @@ import { fetchUsers } from "@/lib/apis/users";
 import { TableRowMenu } from "./TableRowMenu";
 
 
-export function UserTable() {
+export function UserTable({ onAdd }: { onAdd: () => void }) {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -32,6 +32,17 @@ export function UserTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
+        <TableRow
+          className="cursor-pointer hover:bg-gray-200"
+          onClick={onAdd}
+        >
+          <TableCell
+            colSpan={headers.length + 1}
+            className="font-medium text-center"
+          >
+            + Add New User
+          </TableCell>
+        </TableRow>
         {users?.map((user, index) => (
           <TableRow key={index}>
             {headers?.map((header) => (
@@ -39,7 +50,7 @@ export function UserTable() {
             ))}
             <TableCell className="text-right">
               <TableRowMenu />
-          </TableCell>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
