@@ -118,7 +118,7 @@ export default function LoginForm() {
                                                 e.preventDefault()
                                                 setPage((p) => Math.min(totalPages, p + 1))
                                             }}
-                                        />x
+                                        />
                                     </PaginationItem>
                                 </PaginationContent>
                             </Pagination>
