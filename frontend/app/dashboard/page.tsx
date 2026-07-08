@@ -66,7 +66,6 @@ export default function LoginForm() {
 
     return (
         <div className="flex min-h-screen flex-col w-full">
-            <div>Dashboard</div>
             <div className="flex min-h-screen flex-col w-full items-center py-20">
                 <Tabs
                     value={activeTab}

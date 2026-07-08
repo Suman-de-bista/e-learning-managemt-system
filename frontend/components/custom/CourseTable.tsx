@@ -6,22 +6,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Instructor, User } from "@/lib/types/common";
+import { Course } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
-interface InstructorTableProps {
-  instructors: Instructor[] | null,
+interface CoursesTableProps {
+  courses: Course[] | null,
   onEditClick: (id:number)=>void,
   onAdd: () => void,
   onDelete: (id: number) => void
 }
 
-export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: InstructorTableProps) {
+export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTableProps) {
  const router = useRouter();
 
-  const headers = instructors?.length ?? 0 > 0 ? Object.keys(instructors? instructors[0]: []) : [];
+  const headers = courses?.length ?? 0 > 0 ? Object.keys(courses? courses[0]: []) : [];
   console.log(headers)
     return (
       <Table>
@@ -30,7 +30,6 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
             {headers.map((header) => (
               <TableHead key={header}>{header}</TableHead>
             ))}
-            <TableHead></TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -43,19 +42,16 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
               colSpan={headers.length + 2}
               className="font-medium text-center"
             >
-              + Add New Instructor
+              + Add New Course
             </TableCell>
           </TableRow>
-          {instructors?.map((instructor, index) => (
+          {courses?.map((course, index) => (
             <TableRow key={index}>
               {headers?.map((header) => (
-                <TableCell key={header}>{instructor[header]}</TableCell>
+                <TableCell key={header}>{course[header]}</TableCell>
               ))}
               <TableCell className="text-right">
-                <Button onClick={()=> router.push(`/instructor/${instructor.id}/courses`) }>Courses</Button>
-              </TableCell>
-              <TableCell className="text-right">
-                <TableRowMenu id={instructor.id} onEdit={onEditClick} onDelete={onDelete}/>
+                <TableRowMenu id={course.id} onEdit={onEditClick} onDelete={onDelete}/>
               </TableCell>
             </TableRow>
           ))}
