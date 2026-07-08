@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from database import close_db, connect_db
 from app.routes.auths import router as auths_router
 from app.routes.users import router as users_router
+from app.routes.instructors import router as instructors_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -31,6 +32,7 @@ app.add_middleware(
 
 app.include_router(auths_router)
 app.include_router(users_router)
+app.include_router(instructors_router)
 
 
 @app.get("/")
