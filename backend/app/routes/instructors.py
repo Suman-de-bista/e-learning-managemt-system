@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 
 from app.models.users import EditUserModel, Users
 from app.utils.auths import get_password_hash, get_user, validate_email_format
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, UploadFile
 
 from app.models.instructors import AddInstructorModel, EditInstructorModel, Instructors
 import csv
@@ -77,3 +77,52 @@ async def export_csv(user=Depends(get_user)):
         media_type="text/csv",
         headers={"content-Disposition": "attachment; filename=instructors.csv"}
     )
+
+@router.post("/import/csv")
+async def import_csv(file: UploadFile, user=Depends(get_user)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="File must be a CSV")
+    contents = await file.read()
+    text = contents.decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(text))
+
+    required_columns = {"name", "expertise", "bio"}
+    if not required_columns.issubset(reader.fieldnames or []):
+        raise HTTPException(
+            status_code=400,
+            detail=f"CSV must contain columns: {', '.join(required_columns)}",
+        )
+    
+    valid_rows = []
+    errors = []
+
+    for i, row in enumerate(reader, start=2):
+        name = (row.get("name") or "").strip()
+        expertise = (row.get("expertise") or "").strip()
+        bio = (row.get("bio") or "").strip()
+
+        if not name or not expertise or not bio:
+            errors.append(f"Row {i}: missing name or expertise or bio.")
+            continue
+
+        valid_rows.append((name,expertise,bio))
+
+    if valid_rows:
+        names = [r[0] for r in valid_rows]
+        expertises = [r[1] for r in valid_rows]
+        bios = [r[2] for r in valid_rows]
+
+        result = await Instructors.add_instructors_from_csv(names,expertises,bios)
+
+        inserted_count = len(result)
+    else:
+        inserted_count = 0
+    
+    return {
+        "inserted": inserted_count,
+        "errors": len(errors)
+    }
+
+        
+
+

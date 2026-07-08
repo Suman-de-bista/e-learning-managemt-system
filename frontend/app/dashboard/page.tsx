@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/pagination"
 import { deleteUser, fetchUserById, fetchUsers } from "@/lib/apis/users";
 import { Instructor, User } from "@/lib/types/common";
-import { useEffect, useState } from "react";
-import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstructors } from "@/lib/apis/instructors";
+import { useEffect, useRef, useState } from "react";
+import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstructors, importInstructorCSV } from "@/lib/apis/instructors";
 import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
 import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,8 @@ export default function LoginForm() {
     const [isEditInstructorModalOpen, setIsEditInstructorModalOpen] = useState(false);
     const [editUser, setEditUser] = useState<User | null>(null);
     const [editInstructor, setEditInstructor] = useState<Instructor | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [importing, setImporting] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const limit = 10;
@@ -55,7 +57,7 @@ export default function LoginForm() {
         })
     }
 
-    const handleExportInstructor = async() => {
+    const handleExportCSV = async () => {
         const blob = await exportInstructorCSV();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -63,6 +65,24 @@ export default function LoginForm() {
         a.download = "instructors.csv";
         a.click();
         window.URL.revokeObjectURL(url);
+    }
+
+    const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (!file) return;
+
+        setImporting(true);
+        importInstructorCSV(file)
+            .then(() => loadInstructors())
+            .catch((err) => console.log(err))
+            .finally(() => {
+                setImporting(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            })
+
+
+
     }
 
     useEffect(() => {
@@ -135,8 +155,15 @@ export default function LoginForm() {
                         </TabsContent>
                         <TabsContent value="instructors">
                             <div className="flex w-full gap-8 justify-end my-2 p-4">
-                                <Button>Import CSV</Button>
-                                <Button onClick={handleExportInstructor}>Export CSV</Button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".csv"
+                                    className="hidden"
+                                    onChange={handleImportCSV}
+                                />
+                                <Button disabled={importing} onClick={() => fileInputRef.current?.click()}>Import CSV</Button>
+                                <Button onClick={handleExportCSV}>Export CSV</Button>
                             </div>
                             <InstructorTable
                                 instructors={instructors}

@@ -105,6 +105,23 @@ class InstructorTable:
                 raise HTTPException(status_code=404, detail="Instructor not found")
 
             return {"message": "Instructor deleted successfully"}
+    
+
+    async def add_instructors_from_csv(self, names:list[str], expertises: list[str], bio: list[str]):
+        async with get_db() as conn:
+            try:
+                result = await conn.fetch(
+                                """
+                                INSERT INTO instructors (name, expertise, bio)
+                                SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[])
+                                RETURNING id
+                                """,
+                                names, expertises, bio,
+                            )
+                return result
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e))
+
 
 
 Instructors = InstructorTable()

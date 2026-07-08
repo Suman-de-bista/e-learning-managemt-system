@@ -91,3 +91,19 @@ export async  function exportInstructorCSV(){
   }
   return res.blob();
 }
+
+export async  function importInstructorCSV(file: File | null){
+  if (!file) return;
+  const formData = new FormData()
+  formData.append("file",file)
+
+  const res = await fetch(`${BASE_URL}/instructors/import/csv`, {
+    method: "POST",
+    credentials: "include",
+    body: formData
+  });
+  if (!res.ok) {
+    throw new Error(await parseErrorMessage(res));
+  }
+  return res.json();
+}
