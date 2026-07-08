@@ -6,7 +6,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationNext, Paginati
 import { deleteCourse, fetchCourseById, fetchCoursesByInstructorId } from "@/lib/apis/courses";
 import { Course } from "@/lib/types/common";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button";
 
 interface CoursesProps {
     params: Promise<{ instructor_id: number }>
@@ -14,6 +15,7 @@ interface CoursesProps {
 
 export default function Courses() {
     const params = useParams<{instructor_id:string}>()
+    const router = useRouter();
 
     const [courses, setCourses] = useState<Course[] | null>(null);
 
@@ -35,7 +37,8 @@ export default function Courses() {
         loadCourses(page)
     }, [])
     return (
-        <div className="w-8/10 mx-auto mt-20">
+        <div className="flex flex-col gap-6 w-8/10 mx-auto mt-20">
+            <Button className="w-1/8" variant="outline" onClick={()=> router.push("/dashboard")}> Go to Dashboard</Button>
             <CourseTable
                 courses={courses}
                 onAdd={() => setIsAddCourseModalOpen(true)}

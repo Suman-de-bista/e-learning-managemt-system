@@ -52,7 +52,7 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
                 <TableCell key={header}>{instructor[header]}</TableCell>
               ))}
               <TableCell className="text-right">
-                <Button onClick={()=> router.push(`/instructor/${instructor.id}/courses`) }>Courses</Button>
+                <Button onClick={()=> router.push(`/dashboard/instructor/${instructor.id}/courses`) }>Courses</Button>
               </TableCell>
               <TableCell className="text-right">
                 <TableRowMenu id={instructor.id} onEdit={onEditClick} onDelete={onDelete}/>
