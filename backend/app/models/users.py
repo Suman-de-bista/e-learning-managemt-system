@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
 from database import get_db
@@ -22,6 +24,11 @@ class SignupModel(BaseModel):
 class LoginModel(BaseModel):
     email: str
     password: str
+
+class EditUserModel(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 class UserResponseModel(BaseModel):
     id: int
@@ -63,6 +70,33 @@ class UserTable:
                 email,
             )
             return UserResponseModel.model_validate(dict(row)) if row else None
-        
+
+    async def get_user_by_id(self, id: int):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                """SELECT id, name, email FROM users WHERE id = $1""",
+                id,
+            )
+            return UserResponseModel.model_validate(dict(row)) if row else None
+
+    async def update_user(self, id: int, data: EditUserModel):
+        updates = data.model_dump(exclude_unset=True, exclude_none=True)
+        if not updates:
+            return await self.get_user_by_id(id)
+
+        columns = list(updates.keys())
+        set_clause = ", ".join(f"{col} = ${i + 1}" for i, col in enumerate(columns))
+        values = [updates[col] for col in columns]
+
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                f"""UPDATE users SET {set_clause}, updated_at = now()
+                    WHERE id = ${len(columns) + 1}
+                    RETURNING id, name, email""",
+                *values,
+                id,
+            )
+            return UserResponseModel.model_validate(dict(row)) if row else None
+
 
 Users = UserTable()
