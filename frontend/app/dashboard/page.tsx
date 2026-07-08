@@ -9,7 +9,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { fetchUsers } from "@/lib/apis/users";
+import { deleteUser, fetchUsers } from "@/lib/apis/users";
 import { Instructor, User } from "@/lib/types/common";
 import { useEffect, useState } from "react";
 
@@ -46,11 +46,17 @@ export default function LoginForm() {
                     </TabsList>
                     <div className="w-8/10 h-full flex m-auto py-10">
                         <TabsContent value="users">
-                            <UserTable users={users} onAdd={() => setIsAddUserModalOpen(true)} onEditClick={(user) => {
-                                setIsEditUserModalOpen(true)
-                                setEditUser(user)
-                            }
-                            } />
+                            <UserTable 
+                                users={users} 
+                                onAdd={() => setIsAddUserModalOpen(true)} 
+                                onEditClick={(user) => {
+                                    setIsEditUserModalOpen(true)
+                                    setEditUser(user)
+                                }}
+                                onDelete={(id) => {
+                                    deleteUser(id).then(()=> fetchUsers().then((data) => setUsers(data)))
+                                }}
+                             />
                         </TabsContent>
                         <TabsContent value="instructors">
                             <InstructorTable />

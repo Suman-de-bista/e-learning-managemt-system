@@ -7,7 +7,7 @@ import { User } from "@/lib/types/common";
 interface TableRowMenuProps {
     user: User
     onEdit: (user: User) => void,
-    onDelete: () => void
+    onDelete: (id: number) => void
 }
 
 export function TableRowMenu({ user, onEdit, onDelete }: TableRowMenuProps) {
@@ -18,7 +18,7 @@ export function TableRowMenu({ user, onEdit, onDelete }: TableRowMenuProps) {
             <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(user)}>Edit</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                <DropdownMenuItem variant="destructive" onClick={() => onDelete(user.id)}>
                     Delete
                 </DropdownMenuItem>
             </DropdownMenuContent>

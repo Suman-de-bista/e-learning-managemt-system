@@ -1,5 +1,6 @@
 from typing import Optional
 
+from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict
 
 from database import get_db
@@ -97,6 +98,17 @@ class UserTable:
                 id,
             )
             return UserResponseModel.model_validate(dict(row)) if row else None
+    
+    async def delete_user(self, id: int):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                "DELETE FROM users WHERE id = $1 RETURNING id",
+                id
+                )
+            if not row:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            return {"message": "User deleted successfully"}
 
 
 Users = UserTable()

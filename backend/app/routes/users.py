@@ -24,3 +24,13 @@ async def update_user(user_id: int, form_data: EditUserModel, user = Depends(get
     if not updated:
         raise HTTPException(404, detail="User not found")
     return updated
+
+
+@router.delete("/{user_id}")
+async def delete_user(user_id: int, user = Depends(get_user)):
+    if user.id == user_id:
+        raise HTTPException(403, detail="Cannot delete own account.")
+    try:
+        await Users.delete_user(user_id)
+    except Exception as e:
+        raise HTTPException(404, detail=str(e))

@@ -14,10 +14,11 @@ import { useState } from "react";
 interface UserTableProps {
   users: User[] | null,
   onEditClick: (user:User)=>void,
-  onAdd: () => void
+  onAdd: () => void,
+  onDelete: (id: number) => void
 }
 
-export function UserTable({ users, onEditClick, onAdd }: UserTableProps) {
+export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProps) {
 
   const headers = users?.length ?? 0 > 0 ? Object.keys(users? users[0]: []) : [];
   return (
@@ -48,7 +49,7 @@ export function UserTable({ users, onEditClick, onAdd }: UserTableProps) {
               <TableCell key={header}>{user[header]}</TableCell>
             ))}
             <TableCell className="text-right">
-              <TableRowMenu user={user} onEdit={onEditClick} onDelete={()=>null}/>
+              <TableRowMenu user={user} onEdit={onEditClick} onDelete={onDelete}/>
             </TableCell>
           </TableRow>
         ))}

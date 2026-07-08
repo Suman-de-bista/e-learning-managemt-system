@@ -35,3 +35,16 @@ export async function updateUser(id: number, data: Partial<EditUserFormType>): P
   }
   return res.json();
 }
+
+
+export async function deleteUser(id: number,): Promise<void> {
+  const res = await fetch(`${BASE_URL}/users/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(await parseErrorMessage(res));
+  }
+  return res.json();
+}
