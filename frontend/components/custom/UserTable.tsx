@@ -20,14 +20,15 @@ interface UserTableProps {
 
 export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProps) {
 
-  const headers = users?.length ?? 0 > 0 ? Object.keys(users? users[0]: []) : [];
   return (
     <Table>
       <TableHeader className="bg-gray-100 w-full">
         <TableRow>
-          {headers.map((header) => (
-            <TableHead key={header}>{header}</TableHead>
-          ))}
+          {/* {headers.map((header) => ( */}
+            <TableHead key="sn">S.N.</TableHead>
+            <TableHead key="name">Name</TableHead>
+            <TableHead key="email">Email</TableHead>
+          {/* ))} */}
           <TableHead></TableHead>
         </TableRow>
       </TableHeader>
@@ -37,7 +38,7 @@ export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProp
           onClick={onAdd}
         >
           <TableCell
-            colSpan={headers.length + 1}
+            colSpan={4}
             className="font-medium text-center"
           >
             + Add New User
@@ -45,9 +46,9 @@ export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProp
         </TableRow>
         {users?.map((user, index) => (
           <TableRow key={index}>
-            {headers?.map((header) => (
-              <TableCell key={header}>{user[header]}</TableCell>
-            ))}
+              <TableCell key="sn">{index+1}</TableCell>
+              <TableCell key="name">{user["name"]}</TableCell>
+              <TableCell key="email">{user["email"]}</TableCell>
             <TableCell className="text-right">
               <TableRowMenu id={user.id} onEdit={onEditClick} onDelete={onDelete}/>
             </TableCell>

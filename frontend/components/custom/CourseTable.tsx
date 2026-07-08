@@ -21,15 +21,15 @@ interface CoursesTableProps {
 export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTableProps) {
  const router = useRouter();
 
-  const headers = courses?.length ?? 0 > 0 ? Object.keys(courses? courses[0]: []) : [];
-  console.log(headers)
     return (
       <Table>
         <TableHeader className="bg-gray-100 w-full">
           <TableRow>
-            {headers.map((header) => (
-              <TableHead key={header}>{header}</TableHead>
-            ))}
+              <TableHead key="sn">S.N</TableHead>
+              <TableHead key="instructor_id">Instructor ID</TableHead>
+              <TableHead key="title">Title</TableHead>
+              <TableHead key="level">Level</TableHead>
+              <TableHead key="duration_hours">Duration Hours</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -39,7 +39,7 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTab
             onClick={onAdd}
           >
             <TableCell
-              colSpan={headers.length + 2}
+              colSpan={6}
               className="font-medium text-center"
             >
               + Add New Course
@@ -47,9 +47,11 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTab
           </TableRow>
           {courses?.map((course, index) => (
             <TableRow key={index}>
-              {headers?.map((header) => (
-                <TableCell key={header}>{course[header]}</TableCell>
-              ))}
+                <TableCell key="sn">{index+1}</TableCell>
+                <TableCell key="instructor_id">{course["instructor_id"]}</TableCell>
+                <TableCell key="title">{course["title"]}</TableCell>
+                <TableCell key="level">{course["level"]}</TableCell>
+                <TableCell key="duration_hours">{course["duration_hours"]}</TableCell>
               <TableCell className="text-right">
                 <TableRowMenu id={course.id} onEdit={onEditClick} onDelete={onDelete}/>
               </TableCell>

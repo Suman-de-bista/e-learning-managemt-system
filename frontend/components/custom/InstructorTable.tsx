@@ -21,15 +21,14 @@ interface InstructorTableProps {
 export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: InstructorTableProps) {
  const router = useRouter();
 
-  const headers = instructors?.length ?? 0 > 0 ? Object.keys(instructors? instructors[0]: []) : [];
-  console.log(headers)
     return (
       <Table>
         <TableHeader className="bg-gray-100 w-full">
           <TableRow>
-            {headers.map((header) => (
-              <TableHead key={header}>{header}</TableHead>
-            ))}
+              <TableHead key="sn">S.N.</TableHead>
+              <TableHead key="name">Name</TableHead>
+              <TableHead key="expertise">Expertise</TableHead>
+              <TableHead key="bio">Bio</TableHead>
             <TableHead></TableHead>
             <TableHead></TableHead>
           </TableRow>
@@ -40,7 +39,7 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
             onClick={onAdd}
           >
             <TableCell
-              colSpan={headers.length + 2}
+              colSpan={6}
               className="font-medium text-center"
             >
               + Add New Instructor
@@ -48,9 +47,10 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
           </TableRow>
           {instructors?.map((instructor, index) => (
             <TableRow key={index}>
-              {headers?.map((header) => (
-                <TableCell key={header}>{instructor[header]}</TableCell>
-              ))}
+                <TableCell key="sn">{index+1}</TableCell>
+                <TableCell key="name">{instructor["name"]}</TableCell>
+                <TableCell key="expertise">{instructor["expertise"]}</TableCell>
+                <TableCell key="bio">{instructor["bio"]}</TableCell>
               <TableCell className="text-right">
                 <Button onClick={()=> router.push(`/dashboard/instructor/${instructor.id}/courses`) }>Courses</Button>
               </TableCell>
