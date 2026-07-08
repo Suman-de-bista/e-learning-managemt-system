@@ -8,19 +8,18 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { User } from "@/lib/types/common";
-import { useEffect, useState } from "react";
-import { fetchUsers } from "@/lib/apis/users";
 import { TableRowMenu } from "./TableRowMenu";
+import { useState } from "react";
 
+interface UserTableProps {
+  users: User[] | null,
+  onEditClick: (user:User)=>void,
+  onAdd: () => void
+}
 
-export function UserTable({ onAdd }: { onAdd: () => void }) {
-  const [users, setUsers] = useState<User[]>([]);
+export function UserTable({ users, onEditClick, onAdd }: UserTableProps) {
 
-  useEffect(() => {
-    fetchUsers().then((data) => setUsers(data))
-  }, []);
-
-  const headers = users?.length > 0 ? Object.keys(users[0]) : [];
+  const headers = users?.length ?? 0 > 0 ? Object.keys(users? users[0]: []) : [];
   return (
     <Table>
       <TableHeader className="bg-gray-100 w-full">
@@ -49,7 +48,7 @@ export function UserTable({ onAdd }: { onAdd: () => void }) {
               <TableCell key={header}>{user[header]}</TableCell>
             ))}
             <TableCell className="text-right">
-              <TableRowMenu />
+              <TableRowMenu user={user} onEdit={onEditClick} onDelete={()=>null}/>
             </TableCell>
           </TableRow>
         ))}

@@ -30,5 +30,25 @@ export const registerFormSchema = z.object({
   path: ["confirmPassword"]
 })
 
+export const editUserFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters.")
+    .max(50, "Name must be at most 50 characters.")
+    .optional()
+    .or(z.literal("")),
+  email: z
+    .email("Please enter a valid email address.")
+    .optional()
+    .or(z.literal("")),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters.")
+    .max(100, "Password must be at most 100 characters.")
+    .optional()
+    .or(z.literal("")),
+})
+
 export type LoginFormType = z.infer<typeof loginFormSchema>
 export type RegisterFormType = z.infer<typeof registerFormSchema>
+export type EditUserFormType = z.infer<typeof editUserFormSchema>
