@@ -9,9 +9,19 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { deleteUser, fetchUsers } from "@/lib/apis/users";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import { deleteUser, fetchUserById, fetchUsers } from "@/lib/apis/users";
 import { Instructor, User } from "@/lib/types/common";
 import { useEffect, useState } from "react";
+import { deleteInstructor, fetchInstructorById, fetchInstructors } from "@/lib/apis/instructors";
+import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
+import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
 
 type activeTabs = "users" | "instructors";
 
@@ -22,44 +32,138 @@ export default function LoginForm() {
     const [activeTab, setActiveTab] = useState<activeTabs>("users");
     const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+    const [isAddInstructorModalOpen, setIsAddInstructorModalOpen] = useState(false);
+    const [isEditInstructorModalOpen, setIsEditInstructorModalOpen] = useState(false);
     const [editUser, setEditUser] = useState<User | null>(null);
+    const [editInstructor, setEditInstructor] = useState<Instructor | null>(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
+    const loadUsers = (targetPage: number = page) => {
+        fetchUsers(targetPage, limit).then((data) => {
+            setUsers(data.items)
+            setTotalPages(data.total_pages)
+        })
+    }
+
+    const loadInstructors = (targetPage: number = page) => {
+        fetchInstructors(targetPage, limit).then((data) => {
+            setInstructors(data.items)
+            setTotalPages(data.total_pages)
+        })
+    }
 
     useEffect(() => {
         if (activeTab == "users") {
-            fetchUsers().then((data) => setUsers(data))
+            loadUsers(page)
         }
         else if (activeTab == "instructors") {
-
+            loadInstructors(page)
         }
 
-    }, [activeTab])
+    }, [activeTab, page])
 
     return (
         <div className="flex min-h-screen flex-col w-full">
             <div>Dashboard</div>
             <div className="flex min-h-screen flex-col w-full items-center py-20">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full items-center">
+                <Tabs
+                    value={activeTab}
+                    onValueChange={(val) => {
+                        setActiveTab(val)
+                        setPage(1)
+                    }}
+                    className="w-full items-center"
+                >
                     <TabsList className="flex w-1/2 m-auto">
                         <TabsTrigger value="users">Users</TabsTrigger>
                         <TabsTrigger value="instructors">Instructor</TabsTrigger>
                     </TabsList>
                     <div className="w-8/10 h-full flex m-auto py-10">
                         <TabsContent value="users">
-                            <UserTable 
-                                users={users} 
-                                onAdd={() => setIsAddUserModalOpen(true)} 
-                                onEditClick={(user) => {
+                            <UserTable
+                                users={users}
+                                onAdd={() => setIsAddUserModalOpen(true)}
+                                onEditClick={(id) => {
                                     setIsEditUserModalOpen(true)
-                                    setEditUser(user)
+                                    fetchUserById(id).then((user) => setEditUser(user))
                                 }}
                                 onDelete={(id) => {
-                                    deleteUser(id).then(()=> fetchUsers().then((data) => setUsers(data)))
+                                    deleteUser(id).then(() => loadUsers())
                                 }}
-                             />
+                            />
+                            <Pagination className="py-4">
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href="#"
+                                            aria-disabled={page <= 1}
+                                            className={page <= 1 ? "pointer-events-none opacity-50" : undefined}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setPage((p) => Math.max(1, p - 1))
+                                            }}
+                                        />
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <span className="px-4 text-sm">Page {page} of {totalPages}</span>
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href="#"
+                                            aria-disabled={page >= totalPages}
+                                            className={page >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setPage((p) => Math.min(totalPages, p + 1))
+                                            }}
+                                        />x
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
                         </TabsContent>
                         <TabsContent value="instructors">
-                            <InstructorTable />
+                            <InstructorTable
+                                instructors={instructors}
+                                onAdd={() => setIsAddInstructorModalOpen(true)}
+                                onEditClick={(id) => {
+                                    setIsEditInstructorModalOpen(true)
+                                    fetchInstructorById(id).then((instructor) => setEditInstructor(instructor))
+                                }}
+                                onDelete={(id) => {
+                                    deleteInstructor(id).then(() => loadInstructors())
+                                }}
+                            />
+                            <Pagination className="py-4">
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href="#"
+                                            aria-disabled={page <= 1}
+                                            className={page <= 1 ? "pointer-events-none opacity-50" : undefined}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setPage((p) => Math.max(1, p - 1))
+                                            }}
+                                        />
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <span className="px-4 text-sm">Page {page} of {totalPages}</span>
+                                    </PaginationItem>
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href="#"
+                                            aria-disabled={page >= totalPages}
+                                            className={page >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                setPage((p) => Math.min(totalPages, p + 1))
+                                            }}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
                         </TabsContent>
                     </div>
                 </Tabs>
@@ -69,7 +173,7 @@ export default function LoginForm() {
                 onClose={() => setIsAddUserModalOpen(false)}
                 onSuccess={() => {
                     setIsAddUserModalOpen(false)
-                    fetchUsers().then((data) => setUsers(data))
+                    loadUsers()
                 }}
             />
             {editUser &&
@@ -83,7 +187,30 @@ export default function LoginForm() {
                     onSuccess={() => {
                         setIsEditUserModalOpen(false)
                         setEditUser(null)
-                        fetchUsers().then((data) => setUsers(data))
+                        loadUsers()
+                    }}
+                />
+            }
+            <AddInstructorModal
+                isOpen={isAddInstructorModalOpen}
+                onClose={() => setIsAddInstructorModalOpen(false)}
+                onSuccess={() => {
+                    setIsAddInstructorModalOpen(false)
+                    loadInstructors()
+                }}
+            />
+            {editInstructor &&
+                <EditInstructorModal
+                    instructor={editInstructor}
+                    isOpen={isEditInstructorModalOpen}
+                    onClose={() => {
+                        setIsEditInstructorModalOpen(false)
+                        setEditInstructor(null)
+                    }}
+                    onSuccess={() => {
+                        setIsEditInstructorModalOpen(false)
+                        setEditInstructor(null)
+                        loadInstructors()
                     }}
                 />
             }

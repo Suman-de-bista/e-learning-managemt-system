@@ -11,8 +11,28 @@ async function parseErrorMessage(res: Response): Promise<string> {
   }
 }
 
-export async function fetchUsers(): Promise<User[]> {
-  const res = await fetch(`${BASE_URL}/users`, {
+export interface PaginatedUsers {
+  items: User[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
+export async function fetchUsers(page: number = 1, limit: number = 10): Promise<PaginatedUsers> {
+  const res = await fetch(`${BASE_URL}/users?page=${page}&limit=${limit}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(await parseErrorMessage(res));
+  }
+  return res.json();
+}
+
+export async function fetchUserById(user_id: number): Promise<User> {
+  const res = await fetch(`${BASE_URL}/users/${user_id}/`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

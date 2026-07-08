@@ -51,10 +51,24 @@ class UserTable:
             )
             return UserResponseModel.model_validate(dict(row))
 
-    async def get_users(self):
+    async def get_users(self, page: int, limit: int):
+        offset = (page - 1) * limit
         async with get_db() as conn:
-            rows = await conn.fetch("""SELECT id, name, email FROM users""")
-            return [UserResponseModel.model_validate(dict(row)) for row in rows]
+            rows = await conn.fetch(
+                """SELECT id, name, email FROM users
+                   ORDER BY id
+                   LIMIT $1 OFFSET $2""",
+                limit,
+                offset,
+            )
+            total = await conn.fetchval("""SELECT COUNT(*) FROM users""")
+            return {
+                "items": [UserResponseModel.model_validate(dict(row)) for row in rows],
+                "total": total,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total + limit - 1) // limit if total else 0,
+            }
 
     async def get_auth_by_email(self, email: str):
         async with get_db() as conn:

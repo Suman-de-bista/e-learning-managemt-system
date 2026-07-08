@@ -1,13 +1,24 @@
 from app.models.users import EditUserModel, Users
 from app.utils.auths import get_password_hash, get_user, validate_email_format
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/")
-async def get_users(user = Depends(get_user)):
-    return await Users.get_users()
+async def get_users(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    user = Depends(get_user)
+):
+    return await Users.get_users(page=page,limit=limit)
+
+@router.get("/{user_id}")
+async def get_users(
+    user_id: int = Path(),
+    user = Depends(get_user)
+):
+    return await Users.get_user_by_id(user_id)
 
 
 @router.patch("/{user_id}")
