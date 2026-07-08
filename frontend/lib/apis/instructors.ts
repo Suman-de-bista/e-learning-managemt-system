@@ -80,3 +80,14 @@ export async function deleteInstructor(id: number,): Promise<void> {
   }
   return res.json();
 }
+
+export async  function exportInstructorCSV(){
+  const res = await fetch(`${BASE_URL}/instructors/export/csv`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error(await parseErrorMessage(res));
+  }
+  return res.blob();
+}

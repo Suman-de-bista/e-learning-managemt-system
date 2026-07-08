@@ -19,9 +19,10 @@ import {
 import { deleteUser, fetchUserById, fetchUsers } from "@/lib/apis/users";
 import { Instructor, User } from "@/lib/types/common";
 import { useEffect, useState } from "react";
-import { deleteInstructor, fetchInstructorById, fetchInstructors } from "@/lib/apis/instructors";
+import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstructors } from "@/lib/apis/instructors";
 import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
 import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
+import { Button } from "@/components/ui/button";
 
 type activeTabs = "users" | "instructors";
 
@@ -52,6 +53,16 @@ export default function LoginForm() {
             setInstructors(data.items)
             setTotalPages(data.total_pages)
         })
+    }
+
+    const handleExportInstructor = async() => {
+        const blob = await exportInstructorCSV();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "instructors.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
     }
 
     useEffect(() => {
@@ -123,6 +134,10 @@ export default function LoginForm() {
                             </Pagination>
                         </TabsContent>
                         <TabsContent value="instructors">
+                            <div className="flex w-full gap-8 justify-end my-2 p-4">
+                                <Button>Import CSV</Button>
+                                <Button onClick={handleExportInstructor}>Export CSV</Button>
+                            </div>
                             <InstructorTable
                                 instructors={instructors}
                                 onAdd={() => setIsAddInstructorModalOpen(true)}

@@ -1,11 +1,30 @@
+import io
+
+from fastapi.responses import StreamingResponse
+
 from app.models.users import EditUserModel, Users
 from app.utils.auths import get_password_hash, get_user, validate_email_format
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from app.models.instructors import AddInstructorModel, EditInstructorModel, Instructors
+import csv
 
 router = APIRouter(prefix="/instructors", tags=["Instructors"])
 
+async def csv_instructor_generator():
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["id", "name", "expertise", "bio"])
+    yield buffer.getvalue()
+    buffer.seek(0)
+    buffer.truncate(0)
+
+    async for instructor in Instructors.get_all_instructors():
+        writer.writerow([instructor.id, instructor.name, instructor.expertise, instructor.bio])
+        yield buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate(0)
+    
 
 @router.get("/")
 async def get_instructors(
@@ -49,3 +68,12 @@ async def delete_user(instructor_id: int, user = Depends(get_user)):
         await Instructors.delete_instructor(instructor_id)
     except Exception as e:
         raise HTTPException(404, detail=str(e))
+    
+
+@router.get("/export/csv")
+async def export_csv(user=Depends(get_user)):
+    return StreamingResponse(
+        csv_instructor_generator(),
+        media_type="text/csv",
+        headers={"content-Disposition": "attachment; filename=instructors.csv"}
+    )
