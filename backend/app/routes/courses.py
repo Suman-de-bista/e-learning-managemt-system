@@ -7,16 +7,17 @@ from app.models.courses import AddCourseModel, EditCourseModel, Courses
 router = APIRouter(prefix="/courses", tags=["Courses"])
 
 
-@router.get("/")
-async def get_courses(
+@router.get("/{instructor_id}")
+async def get_courses_by_instructor_id(
+    instructor_id: int = Path(),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     user = Depends(get_user)
 ):
-    return await Courses.get_courses(page=page,limit=limit)
+    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit)
 
 
-@router.get("/{course_id}")
+@router.get("/course/{course_id}")
 async def get_course(
     course_id: int = Path(),
     user = Depends(get_user)

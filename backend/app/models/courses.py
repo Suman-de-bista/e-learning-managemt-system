@@ -43,13 +43,14 @@ class CoursesTable:
             )
             return CoursesModel.model_validate(dict(row))
 
-    async def get_courses(self, page: int, limit: int):
+    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int):
         offset = (page - 1) * limit
         async with get_db() as conn:
             rows = await conn.fetch(
-                """SELECT id, instructor_id, title, level, duration_hours FROM courses
+                """SELECT id, instructor_id, title, level, duration_hours FROM courses WHERE instructor_id = $1
                    ORDER BY id
-                   LIMIT $1 OFFSET $2""",
+                   LIMIT $2 OFFSET $3""",
+                instructor_id,
                 limit,
                 offset,
             )
