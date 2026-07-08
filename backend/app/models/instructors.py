@@ -58,6 +58,14 @@ class InstructorTable:
                 "limit": limit,
                 "total_pages": (total + limit - 1) // limit if total else 0,
             }
+    
+    async def get_all_instructors(self):
+        async with get_db() as conn:
+            async with conn.transaction():
+                async for row in conn.cursor(
+                    """SELECT id, name, expertise, bio FROM instructors ORDER BY id""",
+                ):
+                    yield InstructorModel.model_validate(dict(row))
 
 
     async def get_instructor_by_id(self, id: int):
