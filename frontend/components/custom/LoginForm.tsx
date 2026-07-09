@@ -9,9 +9,11 @@ import { loginFormSchema } from "@/lib/types/auths";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { loginUser } from "@/lib/apis/auths";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/context/SessionContext";
 
 export default function LoginForm() {
     const router = useRouter();
+    const { refresh } = useSession();
 
     const form = useForm<LoginFormType>({
         resolver: zodResolver(loginFormSchema),
@@ -23,6 +25,7 @@ export default function LoginForm() {
 
     const onLoginSubmit = async (data: LoginFormType) => {
         await loginUser(data);
+        await refresh();
         router.push('/dashboard');
     }
 

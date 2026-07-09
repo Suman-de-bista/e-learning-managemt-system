@@ -1,6 +1,16 @@
 'use client';
 import React from 'react'
 import { Button } from '../ui/button'
+import { Avatar } from '../ui/avatar'
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuLabel,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+} from '../ui/dropdown-menu'
 import { useRouter } from 'next/navigation'
 import { useSession } from '@/lib/context/SessionContext'
 
@@ -21,15 +31,27 @@ export const NavBar = () => {
             >
                 ELMS.
             </Button>
-            <div className="flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    className="text-white text-md hover:bg-transparent hover:text-white hover:cursor-pointer"
-                    onClick={handleLogout}
-                >
-                    Logout
-                </Button>
-            </div>
+            {user && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="cursor-pointer outline-none">
+                        <Avatar name={user.name} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>
+                                <div className="flex flex-col">
+                                    <span className="font-medium">{user.name}</span>
+                                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                                </div>
+                            </DropdownMenuLabel>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )}
         </div>
     )
 }

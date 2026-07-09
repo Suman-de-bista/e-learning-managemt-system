@@ -7,10 +7,10 @@ import { getCurrentUser, logoutUser } from "../apis/auths";
 const SessionContext = createContext<{
     user: User | null;
     loading: boolean;
-    refresh: () => void;
+    refresh: () => Promise<void>;
     logout: () => Promise<void>;
 }
->({user: null, loading: true, refresh:() =>{}, logout: async () =>{}});
+>({user: null, loading: true, refresh: async () =>{}, logout: async () =>{}});
 
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
