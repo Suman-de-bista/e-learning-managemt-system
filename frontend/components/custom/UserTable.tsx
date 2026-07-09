@@ -46,7 +46,6 @@ export function UserTable({
     <Table>
       <TableHeader className="bg-gray-100 w-full">
         <TableRow>
-          {/* {headers.map((header) => ( */}
             <TableHead key="sn">S.N.</TableHead>
             <TableHead
               key="name"
