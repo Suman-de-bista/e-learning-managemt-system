@@ -9,6 +9,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
 import { registerUser } from "@/lib/apis/auths";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -24,8 +25,13 @@ export default function RegisterForm() {
         })
 
     const onRegisterSubmit = async (data: RegisterFormType) => {
-        await registerUser(data);
-        router.push('/');
+        try {
+            await registerUser(data);
+            toast.success("Account created successfully");
+            router.push('/');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Something went wrong");
+        }
     }
     return (
         <div className="w-full max-w-sm">

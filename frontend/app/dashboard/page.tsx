@@ -24,6 +24,7 @@ import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
 import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/custom/SearchInput";
+import { toast } from "sonner";
 
 type activeTabs = "users" | "instructors";
 
@@ -169,7 +170,11 @@ export default function LoginForm() {
                                     fetchUserById(id).then((user) => setEditUser(user))
                                 }}
                                 onDelete={(id) => {
-                                    deleteUser(id).then(() => loadUsers())
+                                    deleteUser(id).then(() => {
+                                        toast.success("User Deleted Successfully.")
+                                        loadUsers()
+                                    }
+                                    )
                                 }}
                                 sortKey={userSortKey}
                                 sortDirection={userSortDirection}
@@ -230,7 +235,10 @@ export default function LoginForm() {
                                     fetchInstructorById(id).then((instructor) => setEditInstructor(instructor))
                                 }}
                                 onDelete={(id) => {
-                                    deleteInstructor(id).then(() => loadInstructors())
+                                    deleteInstructor(id).then(() => {
+                                        toast.success("Instructor Deleted Successfully.")
+                                        loadInstructors()
+                                })
                                 }}
                                 sortKey={instructorSortKey}
                                 sortDirection={instructorSortDirection}
@@ -274,6 +282,7 @@ export default function LoginForm() {
                 onClose={() => setIsAddUserModalOpen(false)}
                 onSuccess={() => {
                     setIsAddUserModalOpen(false)
+                    toast.success("User Added Successfully.")
                     loadUsers()
                 }}
             />
@@ -288,6 +297,7 @@ export default function LoginForm() {
                     onSuccess={() => {
                         setIsEditUserModalOpen(false)
                         setEditUser(null)
+                        toast.success("User Updated Successfully.")
                         loadUsers()
                     }}
                 />
@@ -297,6 +307,7 @@ export default function LoginForm() {
                 onClose={() => setIsAddInstructorModalOpen(false)}
                 onSuccess={() => {
                     setIsAddInstructorModalOpen(false)
+                    toast.success("Instructor Added Successfully.")
                     loadInstructors()
                 }}
             />
@@ -311,6 +322,7 @@ export default function LoginForm() {
                     onSuccess={() => {
                         setIsEditInstructorModalOpen(false)
                         setEditInstructor(null)
+                        toast.success("Instructor Updated Successfully.")
                         loadInstructors()
                     }}
                 />

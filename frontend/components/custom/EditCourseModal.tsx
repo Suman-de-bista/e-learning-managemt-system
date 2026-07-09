@@ -16,6 +16,7 @@ import { editCourseSchema, EditCourseType } from "@/lib/types/courses"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface EditCourseModalProps {
     course: Course,
@@ -53,9 +54,13 @@ export function EditCourseModal({ course, isOpen, onClose, onSuccess }: EditCour
             onClose();
             return;
         }
-
-        await updateCourse(course.id, updates);
-        onSuccess();
+        try{
+            await updateCourse(course.id, updates);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Updating Course.")
+        }
     }
     if (!isOpen) return null;
     return (

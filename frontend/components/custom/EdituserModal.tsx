@@ -15,6 +15,7 @@ import { editUserFormSchema, EditUserFormType } from "@/lib/types/auths"
 import { User } from "@/lib/types/common"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface EditUserModalProps {
     user: User,
@@ -43,9 +44,13 @@ export function EditUserModal({ user, isOpen, onClose, onSuccess }: EditUserModa
             onClose();
             return;
         }
-
-        await updateUser(user.id, updates);
-        onSuccess();
+        try{
+            await updateUser(user.id, updates);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Updating User.")
+        }
     }
     if (!isOpen) return null;
     return (

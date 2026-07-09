@@ -14,6 +14,7 @@ import { addCourse } from "@/lib/apis/courses"
 import { addCourseSchema, AddCourseType } from "@/lib/types/courses"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface AddCourseModalProps {
     instructorId: number,
@@ -34,8 +35,14 @@ export function AddCourseModal({ instructorId, isOpen, onClose, onSuccess }: Add
     })
 
     const onAddCourseSubmit = async (data: AddCourseType) => {
-        await addCourse(data);
-        onSuccess();
+        try{
+            await addCourse(data);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Adding Course.")
+        }
+        
     }
     if (!isOpen) return null;
     return (

@@ -14,6 +14,7 @@ import { addInstructor } from "@/lib/apis/instructors"
 import { addInstructorSchema, AddInstructorType } from "@/lib/types/instructors"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface AddInstructorModalProps {
     isOpen: boolean,
@@ -32,8 +33,13 @@ const form = useForm<AddInstructorType>({
         })
 
     const onAddInstructorSubmit = async (data: AddInstructorType) => {
-        await addInstructor(data);
-        onSuccess();
+        try{
+            await addInstructor(data);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Adding Instructor.")
+        }
     }
     if (!isOpen) return null;
     return (

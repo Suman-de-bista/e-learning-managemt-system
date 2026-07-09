@@ -15,6 +15,7 @@ import { Instructor } from "@/lib/types/common"
 import { editInstructorSchema, EditInstructorType } from "@/lib/types/instructors"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface EditInstructorModalProps {
     instructor: Instructor,
@@ -43,9 +44,13 @@ export function EditInstructorModal({ instructor, isOpen, onClose, onSuccess }: 
             onClose();
             return;
         }
-
-        await updateInstructor(instructor.id, updates);
-        onSuccess();
+        try{
+            await updateInstructor(instructor.id, updates);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Adding Instructor.")
+        }
     }
     if (!isOpen) return null;
     return (

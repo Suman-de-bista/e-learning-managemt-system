@@ -10,6 +10,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { loginUser } from "@/lib/apis/auths";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/context/SessionContext";
+import { toast } from "sonner";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -24,9 +25,15 @@ export default function LoginForm() {
     })
 
     const onLoginSubmit = async (data: LoginFormType) => {
-        await loginUser(data);
-        await refresh();
-        router.push('/dashboard');
+        try {
+            await loginUser(data);
+            await refresh();
+            toast.success("Login Successful.")
+            router.push('/dashboard');
+        }
+        catch(error){
+            toast.error("Incorrect Credentials.")
+        }
     }
 
     return (

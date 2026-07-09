@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { SearchInput } from "@/components/custom/SearchInput";
+import { toast } from "sonner";
 
 interface CoursesProps {
     params: Promise<{ instructor_id: number }>
@@ -75,7 +76,10 @@ export default function Courses() {
                     fetchCourseById(id).then((course) => setEditCourse(course))
                 }}
                 onDelete={(id) => {
-                    deleteCourse(id).then(() => loadCourses())
+                    deleteCourse(id).then(() => {
+                        toast.success("Course Deleted Successfully.")
+                        loadCourses()
+                })
                 }}
                 sortKey={courseSortKey}
                 sortDirection={courseSortDirection}
@@ -116,6 +120,7 @@ export default function Courses() {
                 onClose={() => setIsAddCourseModalOpen(false)}
                 onSuccess={() => {
                     setIsAddCourseModalOpen(false)
+                    toast.success("Course Added Successfully.")
                     loadCourses()
                 }}
             />
@@ -130,6 +135,7 @@ export default function Courses() {
                     onSuccess={() => {
                         setIsEditCourseModalOpen(false)
                         setEditCourse(null)
+                        toast.success("Course Updated Successfully.")
                         loadCourses()
                     }}
                 />

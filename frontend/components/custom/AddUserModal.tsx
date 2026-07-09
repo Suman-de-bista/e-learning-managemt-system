@@ -14,6 +14,7 @@ import { registerUser } from "@/lib/apis/auths"
 import { registerFormSchema, RegisterFormType } from "@/lib/types/auths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 interface AddUserModalProps {
     isOpen: boolean,
@@ -33,8 +34,13 @@ const form = useForm<RegisterFormType>({
         })
 
     const onAddUserSubmit = async (data: RegisterFormType) => {
-        await registerUser(data);
-        onSuccess();
+        try{
+            await registerUser(data);
+            onSuccess();
+        }
+        catch(error){
+            toast.error("Failed Adding User.")
+        }
     }
     if (!isOpen) return null;
     return (
