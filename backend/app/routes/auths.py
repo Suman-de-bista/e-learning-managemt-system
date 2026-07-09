@@ -1,5 +1,15 @@
-from app.utils.auths import create_token, create_token, get_password_hash, get_user, validate_email_format, verify_password
-from fastapi import APIRouter, HTTPException, Depends
+from app.utils.auths import (
+    create_refresh_token,
+    create_token,
+    get_password_hash,
+    get_user,
+    revoke_refresh_token,
+    rotate_refresh_token,
+    set_auth_cookies,
+    validate_email_format,
+    verify_password,
+)
+from fastapi import APIRouter, HTTPException, Depends, Request
 from passlib.context import CryptContext
 from fastapi import Response
 
@@ -23,21 +33,15 @@ async def signup(response:Response,form_data: SignupModel):
                     "email": user.email,
                     "name": user.name
                 }
-                token = create_token(payload)
-                response.set_cookie(
-                    key="access_token",
-                    value=token,
-                    httponly=True,
-                    secure=True,
-                    samesite="None",
-                    max_age=15 * 60,
-                )
+                access_token = create_token(payload)
+                refresh_token = await create_refresh_token(user.id)
+                set_auth_cookies(response, access_token, refresh_token)
                 return user
         raise HTTPException(400, detail="Email Already Exists")
     except ValueError as e:
         raise HTTPException(400, detail=str(e))
 
-    
+
 
 
 @router.post("/login")
@@ -55,19 +59,13 @@ async def login(response:Response,form_data: LoginModel):
             "email": user.email,
             "name": user.name
         }
-        token = create_token(payload)
-        response.set_cookie(
-                    key="access_token",
-                    value=token,
-                    httponly=True,
-                    secure=True,
-                    samesite="None",
-                    max_age=15 * 60,
-                )
+        access_token = create_token(payload)
+        refresh_token = await create_refresh_token(user.id)
+        set_auth_cookies(response, access_token, refresh_token)
         return user
-        
+
     except Exception as e:
-        raise HTTPException(401, detail=str(e)) 
+        raise HTTPException(401, detail=str(e))
 
 
 @router.get("/me")
@@ -75,7 +73,33 @@ async def get_current_user(user = Depends(get_user)):
     return user
 
 
+@router.post("/refresh")
+async def refresh(request: Request, response: Response):
+    token = request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(401, detail="Missing refresh token")
+    try:
+        user, new_refresh_token = await rotate_refresh_token(token)
+    except Exception as e:
+        response.delete_cookie(key="access_token")
+        response.delete_cookie(key="refresh_token", path="/")
+        raise HTTPException(401, detail=str(e))
+
+    payload = {
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+    }
+    access_token = create_token(payload)
+    set_auth_cookies(response, access_token, new_refresh_token)
+    return user
+
+
 @router.post("/logout")
-async def logout(response:Response):
+async def logout(request: Request, response:Response):
+    token = request.cookies.get("refresh_token")
+    if token:
+        await revoke_refresh_token(token)
     response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token", path="/")
     return {"message": "Logged out successfully"}

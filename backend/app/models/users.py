@@ -153,4 +153,40 @@ class UserTable:
             return {"message": "User deleted successfully"}
 
 
+class RefreshTokenTable:
+    async def add_token(self, user_id: int, token_hash: str, expires_at):
+        async with get_db() as conn:
+            await conn.execute(
+                """INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+                   VALUES ($1, $2, $3)""",
+                user_id,
+                token_hash,
+                expires_at,
+            )
+
+    async def get_valid_token(self, token_hash: str):
+        async with get_db() as conn:
+            row = await conn.fetchrow(
+                """SELECT id, user_id, token_hash, revoked, expires_at FROM refresh_tokens
+                   WHERE token_hash = $1 AND revoked = FALSE AND expires_at > now()""",
+                token_hash,
+            )
+            return dict(row) if row else None
+
+    async def revoke_token(self, token_hash: str):
+        async with get_db() as conn:
+            await conn.execute(
+                """UPDATE refresh_tokens SET revoked = TRUE WHERE token_hash = $1""",
+                token_hash,
+            )
+
+    async def revoke_all_for_user(self, user_id: int):
+        async with get_db() as conn:
+            await conn.execute(
+                """UPDATE refresh_tokens SET revoked = TRUE WHERE user_id = $1""",
+                user_id,
+            )
+
+
 Users = UserTable()
+RefreshTokens = RefreshTokenTable()
