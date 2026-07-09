@@ -19,7 +19,7 @@ async def get_users(
     return await Users.get_users(page=page, limit=limit, search=search, sort_by=sort_by, sort_order=sort_order)
 
 @router.get("/{user_id}")
-async def get_user(
+async def get_user_by_id(
     user_id: int = Path(),
     user = Depends(get_user)
 ):
