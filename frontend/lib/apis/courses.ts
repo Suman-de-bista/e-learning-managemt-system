@@ -1,15 +1,6 @@
-import { BASE_URL } from "../constants";
+import { apiFetchJson } from "@/lib/apis/client";
 import { Course, CourseResponse } from "../types/common";
 import { AddCourseType, EditCourseType } from "../types/courses";
-
-async function parseErrorMessage(res: Response): Promise<string> {
-  try {
-    const body = await res.json();
-    return body.detail ?? "Something went wrong";
-  } catch {
-    return "Something went wrong";
-  }
-}
 
 export interface PaginatedCourses {
   items: CourseResponse[];
@@ -32,63 +23,38 @@ export async function fetchCoursesByInstructorId(instructor_id: string,page: num
     params.set('sort_by', sortBy);
     params.set('sort_order', sortOrder);
   }
-  const res = await fetch(`${BASE_URL}/courses/${instructor_id}?${params}`, {
+  return apiFetchJson<PaginatedCourses>(`/courses/${instructor_id}?${params}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function fetchCourseById(course_id: number): Promise<Course> {
-  const res = await fetch(`${BASE_URL}/courses/course/${course_id}`, {
+  return apiFetchJson<Course>(`/courses/course/${course_id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function addCourse(data: AddCourseType): Promise<Course> {
-  const res = await fetch(`${BASE_URL}/courses/`, {
+  return apiFetchJson<Course>(`/courses/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function updateCourse(id: number, data: Partial<EditCourseType>): Promise<Course> {
-  const res = await fetch(`${BASE_URL}/courses/${id}`, {
+  return apiFetchJson<Course>(`/courses/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function deleteCourse(id: number): Promise<void> {
-  const res = await fetch(`${BASE_URL}/courses/${id}`, {
+  return apiFetchJson<void>(`/courses/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }

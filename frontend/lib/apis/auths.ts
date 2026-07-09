@@ -1,44 +1,25 @@
-import { BASE_URL } from "@/lib/constants";
+import { apiFetch, apiFetchJson } from "@/lib/apis/client";
 import { LoginFormType, RegisterFormType } from "@/lib/types/auths";
 import { User } from "@/lib/types/common";
 
-async function parseErrorMessage(res: Response): Promise<string> {
-  try {
-    const body = await res.json();
-    return body.detail ?? "Something went wrong";
-  } catch {
-    return "Something went wrong";
-  }
-}
-
 export async function loginUser(data: LoginFormType): Promise<User> {
-  const res = await fetch(`${BASE_URL}/auths/login`, {
+  return apiFetchJson<User>("/auths/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function registerUser(data: RegisterFormType): Promise<User> {
-  const res = await fetch(`${BASE_URL}/auths/signup`, {
+  return apiFetchJson<User>("/auths/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error(await parseErrorMessage(res));
-  }
-  return res.json();
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  const res = await fetch(`${BASE_URL}/auths/me`, { credentials: "include" });
+  const res = await apiFetch("/auths/me");
   if (!res.ok) {
     return null;
   }
@@ -46,8 +27,5 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function logoutUser(): Promise<void> {
-  await fetch(`${BASE_URL}/auths/logout`, {
-    method: "POST",
-    credentials: "include",
-  });
+  await apiFetch("/auths/logout", { method: "POST" });
 }
