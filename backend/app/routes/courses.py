@@ -1,3 +1,5 @@
+from typing import Optional
+
 from app.models.users import EditUserModel, Users
 from app.utils.auths import get_user
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -12,9 +14,10 @@ async def get_courses_by_instructor_id(
     instructor_id: int = Path(),
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
+    search: Optional[str] = Query(None),
     user = Depends(get_user)
 ):
-    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit)
+    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit,search=search)
 
 
 @router.get("/course/{course_id}")

@@ -19,8 +19,16 @@ export interface PaginatedCourses {
   total_pages: number;
 }
 
-export async function fetchCoursesByInstructorId(instructor_id: string,page: number = 1, limit: number = 10): Promise<PaginatedCourses> {
-  const res = await fetch(`${BASE_URL}/courses/${instructor_id}?page=${page}&limit=${limit}`, {
+export async function fetchCoursesByInstructorId(instructor_id: string,page: number = 1, limit: number = 10, search: string | null = null): Promise<PaginatedCourses> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (search) {
+    params.set('search', search);
+  }
+  const res = await fetch(`${BASE_URL}/courses/${instructor_id}?${params}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

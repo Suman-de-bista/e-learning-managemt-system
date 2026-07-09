@@ -8,13 +8,16 @@ import { Course, CourseResponse } from "@/lib/types/common";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/custom/SearchInput";
 
 interface CoursesProps {
     params: Promise<{ instructor_id: number }>
 }
 
 export default function Courses() {
-    const params = useParams<{instructor_id:string}>()
+    const params = useParams<{ instructor_id: string }>()
     const router = useRouter();
 
     const [courses, setCourses] = useState<CourseResponse[] | null>(null);
@@ -26,11 +29,16 @@ export default function Courses() {
     const [totalPages, setTotalPages] = useState(1);
     const limit = 10;
 
-    const loadCourses = (targetPage: number = page) => {
-        fetchCoursesByInstructorId(params.instructor_id, targetPage, limit).then((data) => {
+    const loadCourses = (targetPage: number = page, search: string | null = null) => {
+        fetchCoursesByInstructorId(params.instructor_id, targetPage, limit,search).then((data) => {
             setCourses(data.items)
             setTotalPages(data.total_pages)
         })
+    }
+
+    const searchCoursesHandler = (query: string) => {
+        setPage(1)
+        loadCourses(1,query)
     }
 
     useEffect(() => {
@@ -38,7 +46,10 @@ export default function Courses() {
     }, [])
     return (
         <div className="flex flex-col gap-6 w-8/10 mx-auto mt-20">
-            <Button className="w-1/8" variant="outline" onClick={()=> router.push("/dashboard")}> Go to Dashboard</Button>
+            <Button className="w-1/8" variant="outline" onClick={() => router.push("/dashboard")}> Go to Dashboard</Button>
+            <div className="flex w-full justify-end">
+                <SearchInput onSearch={searchCoursesHandler}/>
+            </div>
             <CourseTable
                 courses={courses}
                 onAdd={() => setIsAddCourseModalOpen(true)}

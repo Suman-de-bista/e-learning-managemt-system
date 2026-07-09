@@ -1,5 +1,5 @@
 import { BASE_URL } from "../constants";
-import { Instructor, User } from "../types/common";
+import { Instructor, InstructorResponse, User } from "../types/common";
 import { AddInstructorType, EditInstructorType } from "../types/instructors";
 
 async function parseErrorMessage(res: Response): Promise<string> {
@@ -12,15 +12,23 @@ async function parseErrorMessage(res: Response): Promise<string> {
 }
 
 export interface PaginatedInstructors {
-  items: Instructor[];
+  items: InstructorResponse[];
   total: number;
   page: number;
   limit: number;
   total_pages: number;
 }
 
-export async function fetchInstructors(page: number = 1, limit: number = 10): Promise<PaginatedInstructors> {
-  const res = await fetch(`${BASE_URL}/instructors?page=${page}&limit=${limit}`, {
+export async function fetchInstructors(search: string| null = null, page: number = 1, limit: number = 10): Promise<PaginatedInstructors> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (search) {
+    params.set('search', search);
+  }
+  const res = await fetch(`${BASE_URL}/instructors?${params.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

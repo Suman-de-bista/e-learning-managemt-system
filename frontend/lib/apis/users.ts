@@ -19,8 +19,16 @@ export interface PaginatedUsers {
   total_pages: number;
 }
 
-export async function fetchUsers(page: number = 1, limit: number = 10): Promise<PaginatedUsers> {
-  const res = await fetch(`${BASE_URL}/users?page=${page}&limit=${limit}`, {
+export async function fetchUsers(search: string | null = null, page: number = 1, limit: number = 10): Promise<PaginatedUsers> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (search) {
+    params.set('search', search);
+  }
+  const res = await fetch(`${BASE_URL}/users?${params.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

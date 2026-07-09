@@ -47,20 +47,39 @@ class InstructorTable:
             )
             return InstructorModel.model_validate(dict(row))
 
-    async def get_instructors(self, page: int, limit: int):
+    async def get_instructors(self, page: int, limit: int,  search: str | None = None):
         offset = (page - 1) * limit
         async with get_db() as conn:
             try:
-                rows = await conn.fetch(
-                    """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
-                    LEFT JOIN courses c ON c.instructor_id = i.id
-                    GROUP BY i.id, i.name, i.expertise, i.bio
-                    ORDER BY id
-                    LIMIT $1 OFFSET $2""",
-                    limit,
-                    offset,
-                )
-                total = await conn.fetchval("""SELECT COUNT(*) FROM instructors""")
+                if search:
+                    search_query = f"%{search}%"
+                    rows = await conn.fetch(
+                        """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        LEFT JOIN courses c ON c.instructor_id = i.id
+                        WHERE i.name ILIKE $1 OR i.expertise ILIKE $1 OR i.bio ILIKE $1
+                        GROUP BY i.id, i.name, i.expertise, i.bio
+                        ORDER BY id
+                        LIMIT $2 OFFSET $3""",
+                        search_query,
+                        limit,
+                        offset,
+                    )
+                    total = await conn.fetchval(
+                            """SELECT COUNT(*) FROM instructors
+                            WHERE name ILIKE $1 OR expertise ILIKE $1""",
+                            search_query,
+                        )
+                else:
+                    rows = await conn.fetch(
+                        """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        LEFT JOIN courses c ON c.instructor_id = i.id
+                        GROUP BY i.id, i.name, i.expertise, i.bio
+                        ORDER BY id
+                        LIMIT $1 OFFSET $2""",
+                        limit,
+                        offset,
+                    )
+                    total = await conn.fetchval("""SELECT COUNT(*) FROM instructors""")
                 return {
                     "items": [InstructorResponseModel.model_validate(dict(row)) for row in rows],
                     "total": total,

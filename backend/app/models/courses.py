@@ -50,21 +50,47 @@ class CoursesTable:
             )
             return CoursesModel.model_validate(dict(row))
 
-    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int):
+    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int,search: str | None):
         offset = (page - 1) * limit
         async with get_db() as conn:
             try:
-                rows = await conn.fetch(
-                    """SELECT courses.id, instructors.name AS instructor_name, title, level, duration_hours FROM courses 
-                    INNER JOIN instructors ON courses.instructor_id = instructors.id
-                    WHERE instructor_id = $1
-                    ORDER BY id
-                    LIMIT $2 OFFSET $3""",
-                    instructor_id,
-                    limit,
-                    offset,
-                )
-                total = await conn.fetchval("""SELECT COUNT(*) FROM courses""")
+                if search:
+                    search_query = f"%{search}%"
+                    rows = await conn.fetch(
+                        """SELECT c.id, i.name AS instructor_name, c.title, c.level, c.duration_hours FROM courses c
+                        INNER JOIN instructors i ON c.instructor_id = i.id
+                        WHERE instructor_id = $1
+                        AND (c.title ILIKE $2 OR c.level ILIKE $2)
+                        ORDER BY id
+                        LIMIT $3 OFFSET $4""",
+                        instructor_id,
+                        search_query,
+                        limit,
+                        offset,
+                    )
+                    total = await conn.fetchval(
+                                """SELECT COUNT(*) FROM courses
+                                WHERE instructor_id = $1
+                                    AND (title ILIKE $2 OR level ILIKE $2)""",
+                                instructor_id,
+                                search_query,
+                    )                
+                else:
+                    rows = await conn.fetch(
+                        """SELECT courses.id, instructors.name AS instructor_name, title, level, duration_hours FROM courses 
+                        INNER JOIN instructors ON courses.instructor_id = instructors.id
+                        WHERE instructor_id = $1
+                        ORDER BY id
+                        LIMIT $2 OFFSET $3""",
+                        instructor_id,
+                        limit,
+                        offset,
+                    )
+                    total = await conn.fetchval(
+                                """SELECT COUNT(*) FROM courses
+                                WHERE instructor_id = $1""",
+                                instructor_id,
+                    )
                 return {
                     "items": [CourseResponseModel.model_validate(dict(row)) for row in rows],
                     "total": total,

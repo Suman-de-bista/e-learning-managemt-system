@@ -23,6 +23,9 @@ import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstru
 import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
 import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/custom/SearchInput";
 
 type activeTabs = "users" | "instructors";
 
@@ -43,15 +46,15 @@ export default function LoginForm() {
     const [totalPages, setTotalPages] = useState(1);
     const limit = 10;
 
-    const loadUsers = (targetPage: number = page) => {
-        fetchUsers(targetPage, limit).then((data) => {
+    const loadUsers = (targetPage: number = page, search:string | null = null) => {
+        fetchUsers(search, targetPage, limit).then((data) => {
             setUsers(data.items)
             setTotalPages(data.total_pages)
         })
     }
 
-    const loadInstructors = (targetPage: number = page) => {
-        fetchInstructors(targetPage, limit).then((data) => {
+    const loadInstructors = (targetPage: number = page, search:string | null = null) => {
+        fetchInstructors(search, targetPage, limit).then((data) => {
             setInstructors(data.items)
             setTotalPages(data.total_pages)
         })
@@ -80,9 +83,16 @@ export default function LoginForm() {
                 setImporting(false);
                 if (fileInputRef.current) fileInputRef.current.value = "";
             })
+    }
 
+    const searchUserHandler = (query: string) =>{
+        setPage(1)
+        loadUsers(1,query)
+    }
 
-
+    const searchInstructorHandler = (query: string) =>{
+        setPage(1)
+        loadInstructors(1,query)
     }
 
     useEffect(() => {
@@ -112,6 +122,13 @@ export default function LoginForm() {
                     </TabsList>
                     <div className="w-8/10 h-full flex m-auto py-10">
                         <TabsContent value="users">
+                            <div className="flex w-full gap-8 justify-end my-2 p-4">
+                                <div className="flex w-full justify-end">
+                                    <SearchInput 
+                                        onSearch={searchUserHandler}
+                                    />
+                                </div>
+                            </div>
                             <UserTable
                                 users={users}
                                 onAdd={() => setIsAddUserModalOpen(true)}
@@ -155,6 +172,11 @@ export default function LoginForm() {
                         </TabsContent>
                         <TabsContent value="instructors">
                             <div className="flex w-full gap-8 justify-end my-2 p-4">
+                                <div className="flex w-full justify-end">
+                                    <SearchInput
+                                        onSearch={searchInstructorHandler}
+                                    />
+                                </div>
                                 <input
                                     ref={fileInputRef}
                                     type="file"

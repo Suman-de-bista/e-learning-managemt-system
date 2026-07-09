@@ -51,17 +51,34 @@ class UserTable:
             )
             return UserResponseModel.model_validate(dict(row))
 
-    async def get_users(self, page: int, limit: int):
+    async def get_users(self, page: int, limit: int, search: str | None):
         offset = (page - 1) * limit
         async with get_db() as conn:
-            rows = await conn.fetch(
-                """SELECT id, name, email FROM users
-                   ORDER BY id
-                   LIMIT $1 OFFSET $2""",
-                limit,
-                offset,
-            )
-            total = await conn.fetchval("""SELECT COUNT(*) FROM users""")
+            if search:
+                search_query = f"%{search}%"
+                rows = await conn.fetch(
+                    """SELECT id, name, email FROM users
+                    WHERE name ILIKE $1 OR email ILIKE $1
+                    ORDER BY id
+                    LIMIT $2 OFFSET $3""",
+                    search_query,
+                    limit,
+                    offset,
+                )
+                total = await conn.fetchval(
+                    """SELECT COUNT(*) FROM users
+                    WHERE name ILIKE $1 OR email ILIKE $1""",
+                    search_query
+                )
+            else:    
+                rows = await conn.fetch(
+                    """SELECT id, name, email FROM users
+                    ORDER BY id
+                    LIMIT $1 OFFSET $2""",
+                    limit,
+                    offset,
+                )
+                total = await conn.fetchval("""SELECT COUNT(*) FROM users""")
             return {
                 "items": [UserResponseModel.model_validate(dict(row)) for row in rows],
                 "total": total,

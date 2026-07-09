@@ -1,4 +1,5 @@
 import io
+from typing import Optional
 
 from fastapi.responses import StreamingResponse
 
@@ -29,9 +30,10 @@ async def csv_instructor_generator():
 async def get_instructors(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
+    search: Optional[str] = Query(None),
     user = Depends(get_user)
 ):
-    return await Instructors.get_instructors(page=page,limit=limit)
+    return await Instructors.get_instructors(page=page,limit=limit,search=search)
 
 
 @router.get("/{instructor_id}")
