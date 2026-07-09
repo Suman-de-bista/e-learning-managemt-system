@@ -15,9 +15,11 @@ async def get_courses_by_instructor_id(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100),
     search: Optional[str] = Query(None),
+    sort_by: str = Query("id"),
+    sort_order: str = Query("asc"),
     user = Depends(get_user)
 ):
-    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit,search=search)
+    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit,search=search,sort_by=sort_by,sort_order=sort_order)
 
 
 @router.get("/course/{course_id}")

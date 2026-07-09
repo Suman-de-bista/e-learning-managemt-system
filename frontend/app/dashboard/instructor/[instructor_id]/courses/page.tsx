@@ -1,6 +1,6 @@
 'use client';
 import { AddCourseModal } from "@/components/custom/AddCourseModal";
-import { CourseTable } from "@/components/custom/CourseTable";
+import { CourseTable, CourseSortKey } from "@/components/custom/CourseTable";
 import { EditCourseModal } from "@/components/custom/EditCourseModal";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { deleteCourse, fetchCourseById, fetchCoursesByInstructorId } from "@/lib/apis/courses";
@@ -27,18 +27,35 @@ export default function Courses() {
     const [editCourse, setEditCourse] = useState<Course | null>(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [courseSearch, setCourseSearch] = useState<string | null>(null);
+    const [courseSortKey, setCourseSortKey] = useState<CourseSortKey | null>(null);
+    const [courseSortDirection, setCourseSortDirection] = useState<"asc" | "desc">("asc");
     const limit = 10;
 
-    const loadCourses = (targetPage: number = page, search: string | null = null) => {
-        fetchCoursesByInstructorId(params.instructor_id, targetPage, limit,search).then((data) => {
+    const loadCourses = (
+        targetPage: number = page,
+        search: string | null = courseSearch,
+        sortBy: CourseSortKey | null = courseSortKey,
+        sortOrder: "asc" | "desc" = courseSortDirection
+    ) => {
+        fetchCoursesByInstructorId(params.instructor_id, targetPage, limit, search, sortBy, sortOrder).then((data) => {
             setCourses(data.items)
             setTotalPages(data.total_pages)
         })
     }
 
     const searchCoursesHandler = (query: string) => {
+        setCourseSearch(query)
         setPage(1)
         loadCourses(1,query)
+    }
+
+    const handleCourseSortChange = (key: CourseSortKey) => {
+        const nextDirection = courseSortKey === key && courseSortDirection === "asc" ? "desc" : "asc";
+        setCourseSortKey(key);
+        setCourseSortDirection(nextDirection);
+        setPage(1);
+        loadCourses(1, courseSearch, key, nextDirection);
     }
 
     useEffect(() => {
@@ -60,6 +77,9 @@ export default function Courses() {
                 onDelete={(id) => {
                     deleteCourse(id).then(() => loadCourses())
                 }}
+                sortKey={courseSortKey}
+                sortDirection={courseSortDirection}
+                onSortChange={handleCourseSortChange}
             />
             <Pagination className="py-4">
                 <PaginationContent>

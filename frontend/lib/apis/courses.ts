@@ -19,7 +19,7 @@ export interface PaginatedCourses {
   total_pages: number;
 }
 
-export async function fetchCoursesByInstructorId(instructor_id: string,page: number = 1, limit: number = 10, search: string | null = null): Promise<PaginatedCourses> {
+export async function fetchCoursesByInstructorId(instructor_id: string,page: number = 1, limit: number = 10, search: string | null = null, sortBy: string | null = null, sortOrder: "asc" | "desc" = "asc"): Promise<PaginatedCourses> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -27,6 +27,10 @@ export async function fetchCoursesByInstructorId(instructor_id: string,page: num
 
   if (search) {
     params.set('search', search);
+  }
+  if (sortBy) {
+    params.set('sort_by', sortBy);
+    params.set('sort_order', sortOrder);
   }
   const res = await fetch(`${BASE_URL}/courses/${instructor_id}?${params}`, {
     method: "GET",

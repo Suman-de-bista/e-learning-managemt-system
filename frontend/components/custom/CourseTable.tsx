@@ -10,16 +10,32 @@ import {  CourseResponse } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+
+export type CourseSortKey = "title" | "level";
+export type SortDirection = "asc" | "desc";
 
 interface CoursesTableProps {
   courses: CourseResponse[] | null,
   onEditClick: (id:number)=>void,
   onAdd: () => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
+  sortKey?: CourseSortKey | null,
+  sortDirection?: SortDirection,
+  onSortChange?: (key: CourseSortKey) => void,
 }
 
-export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTableProps) {
+export function CourseTable({courses , onEditClick, onAdd, onDelete, sortKey, sortDirection, onSortChange}: CoursesTableProps) {
  const router = useRouter();
+
+  const renderSortIcon = (key: CourseSortKey) => {
+    if (sortKey !== key) return <ArrowUpDown className="ml-1 inline size-3.5" />;
+    return sortDirection === "asc" ? (
+      <ArrowUp className="ml-1 inline size-3.5" />
+    ) : (
+      <ArrowDown className="ml-1 inline size-3.5" />
+    );
+  };
 
     return (
       <Table>
@@ -27,8 +43,20 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTab
           <TableRow>
               <TableHead key="sn">S.N</TableHead>
               <TableHead key="instructor_id">Instructor Name</TableHead>
-              <TableHead key="title">Title</TableHead>
-              <TableHead key="level">Level</TableHead>
+              <TableHead
+                key="title"
+                className="cursor-pointer select-none"
+                onClick={() => onSortChange?.("title")}
+              >
+                Title{renderSortIcon("title")}
+              </TableHead>
+              <TableHead
+                key="level"
+                className="cursor-pointer select-none"
+                onClick={() => onSortChange?.("level")}
+              >
+                Level{renderSortIcon("level")}
+              </TableHead>
               <TableHead key="duration_hours">Duration Hours</TableHead>
             <TableHead></TableHead>
           </TableRow>
