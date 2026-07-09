@@ -2,8 +2,7 @@ import io
 
 from fastapi.responses import StreamingResponse
 
-from app.models.users import EditUserModel, Users
-from app.utils.auths import get_password_hash, get_user, validate_email_format
+from app.utils.auths import get_user
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, UploadFile
 
 from app.models.instructors import AddInstructorModel, EditInstructorModel, Instructors

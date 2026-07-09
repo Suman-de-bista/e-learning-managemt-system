@@ -1,5 +1,5 @@
 import { BASE_URL } from "../constants";
-import { Course } from "../types/common";
+import { Course, CourseResponse } from "../types/common";
 import { AddCourseType, EditCourseType } from "../types/courses";
 
 async function parseErrorMessage(res: Response): Promise<string> {
@@ -12,7 +12,7 @@ async function parseErrorMessage(res: Response): Promise<string> {
 }
 
 export interface PaginatedCourses {
-  items: Course[];
+  items: CourseResponse[];
   total: number;
   page: number;
   limit: number;

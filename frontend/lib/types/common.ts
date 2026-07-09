@@ -18,3 +18,10 @@ export interface Course {
   level: string;
   duration_hours: number;
 }
+
+export type CourseResponse = Omit<Course,"instructor_id"> & {
+  instructor_name:string;
+}
+export type InstructorResponse = Instructor & {
+  courses_count:number;
+}

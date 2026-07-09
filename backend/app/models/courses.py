@@ -28,6 +28,13 @@ class EditCourseModel(BaseModel):
     level: Optional[str] = None
     duration_hours: Optional[int] = None
 
+class CourseResponseModel(BaseModel):
+    id: int
+    instructor_name: str
+    title: str
+    level: str
+    duration_hours: int
+
 
 class CoursesTable:
     async def add_new_course(self, form_data: AddCourseModel):
@@ -46,22 +53,27 @@ class CoursesTable:
     async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int):
         offset = (page - 1) * limit
         async with get_db() as conn:
-            rows = await conn.fetch(
-                """SELECT id, instructor_id, title, level, duration_hours FROM courses WHERE instructor_id = $1
-                   ORDER BY id
-                   LIMIT $2 OFFSET $3""",
-                instructor_id,
-                limit,
-                offset,
-            )
-            total = await conn.fetchval("""SELECT COUNT(*) FROM courses""")
-            return {
-                "items": [CoursesModel.model_validate(dict(row)) for row in rows],
-                "total": total,
-                "page": page,
-                "limit": limit,
-                "total_pages": (total + limit - 1) // limit if total else 0,
-            }
+            try:
+                rows = await conn.fetch(
+                    """SELECT courses.id, instructors.name AS instructor_name, title, level, duration_hours FROM courses 
+                    INNER JOIN instructors ON courses.instructor_id = instructors.id
+                    WHERE instructor_id = $1
+                    ORDER BY id
+                    LIMIT $2 OFFSET $3""",
+                    instructor_id,
+                    limit,
+                    offset,
+                )
+                total = await conn.fetchval("""SELECT COUNT(*) FROM courses""")
+                return {
+                    "items": [CourseResponseModel.model_validate(dict(row)) for row in rows],
+                    "total": total,
+                    "page": page,
+                    "limit": limit,
+                    "total_pages": (total + limit - 1) // limit if total else 0,
+                }
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
 
     async def get_course_by_id(self, id: int):

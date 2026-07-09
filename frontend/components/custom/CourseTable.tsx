@@ -6,13 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Course } from "@/lib/types/common";
+import {  CourseResponse } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 interface CoursesTableProps {
-  courses: Course[] | null,
+  courses: CourseResponse[] | null,
   onEditClick: (id:number)=>void,
   onAdd: () => void,
   onDelete: (id: number) => void
@@ -26,7 +26,7 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTab
         <TableHeader className="bg-gray-100 w-full">
           <TableRow>
               <TableHead key="sn">S.N</TableHead>
-              <TableHead key="instructor_id">Instructor ID</TableHead>
+              <TableHead key="instructor_id">Instructor Name</TableHead>
               <TableHead key="title">Title</TableHead>
               <TableHead key="level">Level</TableHead>
               <TableHead key="duration_hours">Duration Hours</TableHead>
@@ -48,7 +48,7 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete}: CoursesTab
           {courses?.map((course, index) => (
             <TableRow key={index}>
                 <TableCell key="sn">{index+1}</TableCell>
-                <TableCell key="instructor_id">{course["instructor_id"]}</TableCell>
+                <TableCell key="instructor_id">{course["instructor_name"]}</TableCell>
                 <TableCell key="title">{course["title"]}</TableCell>
                 <TableCell key="level">{course["level"]}</TableCell>
                 <TableCell key="duration_hours">{course["duration_hours"]}</TableCell>

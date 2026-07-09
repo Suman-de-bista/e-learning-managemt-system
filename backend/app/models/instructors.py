@@ -26,6 +26,13 @@ class EditInstructorModel(BaseModel):
     expertise: Optional[str] = None
     bio: Optional[str] = None
 
+class InstructorResponseModel(BaseModel):
+    id: int
+    name: str
+    expertise: str
+    bio: str
+    courses_count: int
+
 
 class InstructorTable:
     async def add_new_instructor(self, form_data: AddInstructorModel):
@@ -43,21 +50,26 @@ class InstructorTable:
     async def get_instructors(self, page: int, limit: int):
         offset = (page - 1) * limit
         async with get_db() as conn:
-            rows = await conn.fetch(
-                """SELECT id, name, expertise, bio FROM instructors
-                   ORDER BY id
-                   LIMIT $1 OFFSET $2""",
-                limit,
-                offset,
-            )
-            total = await conn.fetchval("""SELECT COUNT(*) FROM instructors""")
-            return {
-                "items": [InstructorModel.model_validate(dict(row)) for row in rows],
-                "total": total,
-                "page": page,
-                "limit": limit,
-                "total_pages": (total + limit - 1) // limit if total else 0,
-            }
+            try:
+                rows = await conn.fetch(
+                    """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                    LEFT JOIN courses c ON c.instructor_id = i.id
+                    GROUP BY i.id, i.name, i.expertise, i.bio
+                    ORDER BY id
+                    LIMIT $1 OFFSET $2""",
+                    limit,
+                    offset,
+                )
+                total = await conn.fetchval("""SELECT COUNT(*) FROM instructors""")
+                return {
+                    "items": [InstructorResponseModel.model_validate(dict(row)) for row in rows],
+                    "total": total,
+                    "page": page,
+                    "limit": limit,
+                    "total_pages": (total + limit - 1) // limit if total else 0,
+                }
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=str(e))
     
     async def get_all_instructors(self):
         async with get_db() as conn:

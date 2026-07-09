@@ -6,13 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Instructor, User } from "@/lib/types/common";
+import { InstructorResponse } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 interface InstructorTableProps {
-  instructors: Instructor[] | null,
+  instructors: InstructorResponse[] | null,
   onEditClick: (id:number)=>void,
   onAdd: () => void,
   onDelete: (id: number) => void
@@ -52,7 +52,7 @@ export function InstructorTable({instructors, onAdd, onEditClick, onDelete }: In
                 <TableCell key="expertise">{instructor["expertise"]}</TableCell>
                 <TableCell key="bio">{instructor["bio"]}</TableCell>
               <TableCell className="text-right">
-                <Button onClick={()=> router.push(`/dashboard/instructor/${instructor.id}/courses`) }>Courses</Button>
+                <Button onClick={()=> router.push(`/dashboard/instructor/${instructor.id}/courses`) } className="cursor-pointer">View {instructor["courses_count"]} Courses</Button>
               </TableCell>
               <TableCell className="text-right">
                 <TableRowMenu id={instructor.id} onEdit={onEditClick} onDelete={onDelete}/>
