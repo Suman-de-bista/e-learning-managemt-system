@@ -8,9 +8,9 @@ const SessionContext = createContext<{
     user: User | null;
     loading: boolean;
     refresh: () => void;
-    logout: () => void;
+    logout: () => Promise<void>;
 }
->({user: null, loading: true, refresh:() =>{}, logout:() =>{}});
+>({user: null, loading: true, refresh:() =>{}, logout: async () =>{}});
 
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
