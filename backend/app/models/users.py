@@ -51,15 +51,26 @@ class UserTable:
             )
             return UserResponseModel.model_validate(dict(row))
 
-    async def get_users(self, page: int, limit: int, search: str | None):
+    SORTABLE_COLUMNS = {"id", "name", "email"}
+
+    async def get_users(
+        self,
+        page: int,
+        limit: int,
+        search: str | None,
+        sort_by: str = "id",
+        sort_order: str = "asc",
+    ):
         offset = (page - 1) * limit
+        column = sort_by if sort_by in self.SORTABLE_COLUMNS else "id"
+        direction = "DESC" if sort_order.lower() == "desc" else "ASC"
         async with get_db() as conn:
             if search:
                 search_query = f"%{search}%"
                 rows = await conn.fetch(
-                    """SELECT id, name, email FROM users
+                    f"""SELECT id, name, email FROM users
                     WHERE name ILIKE $1 OR email ILIKE $1
-                    ORDER BY id
+                    ORDER BY {column} {direction}
                     LIMIT $2 OFFSET $3""",
                     search_query,
                     limit,
@@ -70,10 +81,10 @@ class UserTable:
                     WHERE name ILIKE $1 OR email ILIKE $1""",
                     search_query
                 )
-            else:    
+            else:
                 rows = await conn.fetch(
-                    """SELECT id, name, email FROM users
-                    ORDER BY id
+                    f"""SELECT id, name, email FROM users
+                    ORDER BY {column} {direction}
                     LIMIT $1 OFFSET $2""",
                     limit,
                     offset,

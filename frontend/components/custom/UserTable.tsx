@@ -9,16 +9,38 @@ import {
 } from "@/components/ui/table"
 import { User } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
-import { useState } from "react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+
+export type UserSortKey = "name" | "email";
+export type SortDirection = "asc" | "desc";
 
 interface UserTableProps {
   users: User[] | null,
   onEditClick: (id:number)=>void,
   onAdd: () => void,
-  onDelete: (id: number) => void
+  onDelete: (id: number) => void,
+  sortKey?: UserSortKey | null,
+  sortDirection?: SortDirection,
+  onSortChange?: (key: UserSortKey) => void,
 }
 
-export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProps) {
+export function UserTable({
+  users,
+  onEditClick,
+  onAdd,
+  onDelete,
+  sortKey = null,
+  sortDirection = "asc",
+  onSortChange,
+}: UserTableProps) {
+  const renderSortIcon = (key: UserSortKey) => {
+    if (sortKey !== key) return <ArrowUpDown className="ml-1 inline size-3.5" />;
+    return sortDirection === "asc" ? (
+      <ArrowUp className="ml-1 inline size-3.5" />
+    ) : (
+      <ArrowDown className="ml-1 inline size-3.5" />
+    );
+  };
 
   return (
     <Table>
@@ -26,8 +48,20 @@ export function UserTable({ users, onEditClick, onAdd, onDelete }: UserTableProp
         <TableRow>
           {/* {headers.map((header) => ( */}
             <TableHead key="sn">S.N.</TableHead>
-            <TableHead key="name">Name</TableHead>
-            <TableHead key="email">Email</TableHead>
+            <TableHead
+              key="name"
+              className="cursor-pointer select-none"
+              onClick={() => onSortChange?.("name")}
+            >
+              Name{renderSortIcon("name")}
+            </TableHead>
+            <TableHead
+              key="email"
+              className="cursor-pointer select-none"
+              onClick={() => onSortChange?.("email")}
+            >
+              Email{renderSortIcon("email")}
+            </TableHead>
           {/* ))} */}
           <TableHead></TableHead>
         </TableRow>

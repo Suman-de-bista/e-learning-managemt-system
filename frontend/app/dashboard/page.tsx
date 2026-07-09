@@ -2,7 +2,7 @@
 import { AddUserModal } from "@/components/custom/AddUserModal";
 import { EditUserModal } from "@/components/custom/EdituserModal";
 import { InstructorTable } from "@/components/custom/InstructorTable";
-import { UserTable } from "@/components/custom/UserTable";
+import { UserSortKey, UserTable } from "@/components/custom/UserTable";
 import {
     Tabs,
     TabsContent,
@@ -44,13 +44,29 @@ export default function LoginForm() {
     const [importing, setImporting] = useState(false);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [userSortKey, setUserSortKey] = useState<UserSortKey | null>(null);
+    const [userSortDirection, setUserSortDirection] = useState<"asc" | "desc">("asc");
+    const [userSearch, setUserSearch] = useState<string | null>(null);
     const limit = 10;
 
-    const loadUsers = (targetPage: number = page, search:string | null = null) => {
-        fetchUsers(search, targetPage, limit).then((data) => {
+    const loadUsers = (
+        targetPage: number = page,
+        search: string | null = userSearch,
+        sortBy: UserSortKey | null = userSortKey,
+        sortOrder: "asc" | "desc" = userSortDirection
+    ) => {
+        fetchUsers(search, targetPage, limit, sortBy, sortOrder).then((data) => {
             setUsers(data.items)
             setTotalPages(data.total_pages)
         })
+    }
+
+    const handleUserSortChange = (key: UserSortKey) => {
+        const nextDirection = userSortKey === key && userSortDirection === "asc" ? "desc" : "asc";
+        setUserSortKey(key);
+        setUserSortDirection(nextDirection);
+        setPage(1);
+        loadUsers(1, userSearch, key, nextDirection);
     }
 
     const loadInstructors = (targetPage: number = page, search:string | null = null) => {
@@ -86,6 +102,7 @@ export default function LoginForm() {
     }
 
     const searchUserHandler = (query: string) =>{
+        setUserSearch(query)
         setPage(1)
         loadUsers(1,query)
     }
@@ -139,6 +156,9 @@ export default function LoginForm() {
                                 onDelete={(id) => {
                                     deleteUser(id).then(() => loadUsers())
                                 }}
+                                sortKey={userSortKey}
+                                sortDirection={userSortDirection}
+                                onSortChange={handleUserSortChange}
                             />
                             <Pagination className="py-4">
                                 <PaginationContent>
