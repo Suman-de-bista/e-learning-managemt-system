@@ -50,7 +50,7 @@ class CoursesTable:
             )
             return CoursesModel.model_validate(dict(row))
 
-    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int,search: str | None, sort_by: str = "id", sort_order: str = "asc"):
+    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int,search: str | None, sort_by: str = "created_at",sort_order: str = "desc",):
         SORTABLE_COLUMNS = {"id", "title", "level"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"

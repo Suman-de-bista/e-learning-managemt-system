@@ -58,8 +58,8 @@ class UserTable:
         page: int,
         limit: int,
         search: str | None,
-        sort_by: str = "id",
-        sort_order: str = "asc",
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
     ):
         offset = (page - 1) * limit
         column = sort_by if sort_by in self.SORTABLE_COLUMNS else "id"

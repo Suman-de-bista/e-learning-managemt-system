@@ -47,7 +47,7 @@ class InstructorTable:
             )
             return InstructorModel.model_validate(dict(row))
 
-    async def get_instructors(self, page: int, limit: int,  search: str | None = None, sort_by: str = "id", sort_order: str = "asc"):
+    async def get_instructors(self, page: int, limit: int,  search: str | None = None, sort_by: str = "created_at", sort_order: str = "desc",):
         SORTABLE_COLUMNS = {"id", "name", "expertise", "bio"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
