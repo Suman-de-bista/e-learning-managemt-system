@@ -47,18 +47,21 @@ class InstructorTable:
             )
             return InstructorModel.model_validate(dict(row))
 
-    async def get_instructors(self, page: int, limit: int,  search: str | None = None):
+    async def get_instructors(self, page: int, limit: int,  search: str | None = None, sort_by: str = "id", sort_order: str = "asc"):
+        SORTABLE_COLUMNS = {"id", "name", "expertise", "bio"}
         offset = (page - 1) * limit
+        column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
+        direction = "DESC" if sort_order.lower() == "desc" else "ASC"
         async with get_db() as conn:
             try:
                 if search:
                     search_query = f"%{search}%"
                     rows = await conn.fetch(
-                        """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        f"""SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
                         LEFT JOIN courses c ON c.instructor_id = i.id
                         WHERE i.name ILIKE $1 OR i.expertise ILIKE $1 OR i.bio ILIKE $1
                         GROUP BY i.id, i.name, i.expertise, i.bio
-                        ORDER BY id
+                        ORDER BY {column} {direction}
                         LIMIT $2 OFFSET $3""",
                         search_query,
                         limit,
@@ -71,10 +74,10 @@ class InstructorTable:
                         )
                 else:
                     rows = await conn.fetch(
-                        """SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        f"""SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
                         LEFT JOIN courses c ON c.instructor_id = i.id
                         GROUP BY i.id, i.name, i.expertise, i.bio
-                        ORDER BY id
+                        ORDER BY {column} {direction}
                         LIMIT $1 OFFSET $2""",
                         limit,
                         offset,

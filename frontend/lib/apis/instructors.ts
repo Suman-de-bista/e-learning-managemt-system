@@ -19,7 +19,8 @@ export interface PaginatedInstructors {
   total_pages: number;
 }
 
-export async function fetchInstructors(search: string| null = null, page: number = 1, limit: number = 10): Promise<PaginatedInstructors> {
+export async function fetchInstructors(search: string | null = null, page: number = 1, limit: number = 10, sortBy: string | null = null,
+  sortOrder: "asc" | "desc" = "asc"): Promise<PaginatedInstructors> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
@@ -27,6 +28,10 @@ export async function fetchInstructors(search: string| null = null, page: number
 
   if (search) {
     params.set('search', search);
+  }
+  if (sortBy) {
+    params.set('sort_by', sortBy);
+    params.set('sort_order', sortOrder);
   }
   const res = await fetch(`${BASE_URL}/instructors?${params.toString()}`, {
     method: "GET",
@@ -39,7 +44,7 @@ export async function fetchInstructors(search: string| null = null, page: number
   return res.json();
 }
 
-export async function fetchInstructorById(instructor_id:number): Promise<Instructor> {
+export async function fetchInstructorById(instructor_id: number): Promise<Instructor> {
   const res = await fetch(`${BASE_URL}/instructors/${instructor_id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -89,7 +94,7 @@ export async function deleteInstructor(id: number,): Promise<void> {
   return res.json();
 }
 
-export async  function exportInstructorCSV(){
+export async function exportInstructorCSV() {
   const res = await fetch(`${BASE_URL}/instructors/export/csv`, {
     method: "GET",
     credentials: "include",
@@ -100,10 +105,10 @@ export async  function exportInstructorCSV(){
   return res.blob();
 }
 
-export async  function importInstructorCSV(file: File | null){
+export async function importInstructorCSV(file: File | null) {
   if (!file) return;
   const formData = new FormData()
-  formData.append("file",file)
+  formData.append("file", file)
 
   const res = await fetch(`${BASE_URL}/instructors/import/csv`, {
     method: "POST",

@@ -1,7 +1,7 @@
 'use client';
 import { AddUserModal } from "@/components/custom/AddUserModal";
 import { EditUserModal } from "@/components/custom/EdituserModal";
-import { InstructorTable } from "@/components/custom/InstructorTable";
+import { InstructorSortKey, InstructorTable } from "@/components/custom/InstructorTable";
 import { UserSortKey, UserTable } from "@/components/custom/UserTable";
 import {
     Tabs,
@@ -23,8 +23,6 @@ import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstru
 import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
 import { EditInstructorModal } from "@/components/custom/EditInstructorModal";
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { SearchInput } from "@/components/custom/SearchInput";
 
 type activeTabs = "users" | "instructors";
@@ -47,6 +45,10 @@ export default function LoginForm() {
     const [userSortKey, setUserSortKey] = useState<UserSortKey | null>(null);
     const [userSortDirection, setUserSortDirection] = useState<"asc" | "desc">("asc");
     const [userSearch, setUserSearch] = useState<string | null>(null);
+
+    const [instructorSortKey, setInstructorSortKey] = useState<InstructorSortKey | null>(null);
+    const [instructorSortDirection, setInstructorSortDirection] = useState<"asc" | "desc">("asc");
+    const [instructorSearch, setInstructorSearch] = useState<string | null>(null);
     const limit = 10;
 
     const loadUsers = (
@@ -69,11 +71,23 @@ export default function LoginForm() {
         loadUsers(1, userSearch, key, nextDirection);
     }
 
-    const loadInstructors = (targetPage: number = page, search:string | null = null) => {
-        fetchInstructors(search, targetPage, limit).then((data) => {
+    const loadInstructors = (
+        targetPage: number = page,
+         search:string | null = instructorSearch,
+        sortBy: InstructorSortKey | null = instructorSortKey,
+        sortOrder: "asc" | "desc" = instructorSortDirection) => {
+        fetchInstructors(search, targetPage, limit, sortBy, sortOrder).then((data) => {
             setInstructors(data.items)
             setTotalPages(data.total_pages)
         })
+    }
+
+    const handleInstructorSortChange = (key: InstructorSortKey) => {
+        const nextDirection = instructorSortKey === key && instructorSortDirection === "asc" ? "desc" : "asc";
+        setInstructorSortKey(key);
+        setInstructorSortDirection(nextDirection);
+        setPage(1);
+        loadInstructors(1, instructorSearch, key, nextDirection);
     }
 
     const handleExportCSV = async () => {
@@ -108,6 +122,7 @@ export default function LoginForm() {
     }
 
     const searchInstructorHandler = (query: string) =>{
+        setInstructorSearch(query)
         setPage(1)
         loadInstructors(1,query)
     }
@@ -217,6 +232,9 @@ export default function LoginForm() {
                                 onDelete={(id) => {
                                     deleteInstructor(id).then(() => loadInstructors())
                                 }}
+                                sortKey={instructorSortKey}
+                                sortDirection={instructorSortDirection}
+                                onSortChange={handleInstructorSortChange}
                             />
                             <Pagination className="py-4">
                                 <PaginationContent>
