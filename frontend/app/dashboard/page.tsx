@@ -17,7 +17,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { deleteUser, fetchUserById, fetchUsers } from "@/lib/apis/users";
-import { Instructor, User } from "@/lib/types/common";
+import { Instructor, InstructorResponse, User } from "@/lib/types/common";
 import { useEffect, useRef, useState } from "react";
 import { deleteInstructor, exportInstructorCSV, fetchInstructorById, fetchInstructors, importInstructorCSV } from "@/lib/apis/instructors";
 import { AddInstructorModal } from "@/components/custom/AddInstructorModal";
@@ -29,7 +29,7 @@ type activeTabs = "users" | "instructors";
 
 export default function LoginForm() {
     const [users, setUsers] = useState<User[] | null>(null);
-    const [instructors, setInstructors] = useState<Instructor[] | null>(null);
+    const [instructors, setInstructors] = useState<InstructorResponse[] | null>(null);
     const [activeTab, setActiveTab] = useState<activeTabs>("users");
     const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
     const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);

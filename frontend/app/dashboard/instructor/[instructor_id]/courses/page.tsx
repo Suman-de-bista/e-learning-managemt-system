@@ -4,7 +4,7 @@ import { CourseTable } from "@/components/custom/CourseTable";
 import { EditCourseModal } from "@/components/custom/EditCourseModal";
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { deleteCourse, fetchCourseById, fetchCoursesByInstructorId } from "@/lib/apis/courses";
-import { Course } from "@/lib/types/common";
+import { Course, CourseResponse } from "@/lib/types/common";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export default function Courses() {
     const params = useParams<{instructor_id:string}>()
     const router = useRouter();
 
-    const [courses, setCourses] = useState<Course[] | null>(null);
+    const [courses, setCourses] = useState<CourseResponse[] | null>(null);
 
     const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
     const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
