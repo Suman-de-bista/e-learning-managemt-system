@@ -15,7 +15,7 @@ export async function fetchUsers(
   page: number = 1,
   limit: number = 10,
   sortBy: string | null = null,
-  sortOrder: "asc" | "desc" = "asc"
+  sortOrder: "asc" | "desc" = "asc",
 ): Promise<PaginatedUsers> {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -23,11 +23,11 @@ export async function fetchUsers(
   });
 
   if (search) {
-    params.set('search', search);
+    params.set("search", search);
   }
   if (sortBy) {
-    params.set('sort_by', sortBy);
-    params.set('sort_order', sortOrder);
+    params.set("sort_by", sortBy);
+    params.set("sort_order", sortOrder);
   }
   return apiFetchJson<PaginatedUsers>(`/users/?${params.toString()}`, {
     method: "GET",
@@ -58,8 +58,7 @@ export async function updateUser(id: number, data: Partial<EditUserFormType>): P
   });
 }
 
-
-export async function deleteUser(id: number,): Promise<void> {
+export async function deleteUser(id: number): Promise<void> {
   return apiFetchJson<void>(`/users/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import RegisterForm from "@/components/custom/RegisterForm";
 
 export default function Home() {

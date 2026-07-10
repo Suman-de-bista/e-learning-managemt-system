@@ -10,19 +10,24 @@ export interface PaginatedInstructors {
   total_pages: number;
 }
 
-export async function fetchInstructors(search: string | null = null, page: number = 1, limit: number = 10, sortBy: string | null = null,
-  sortOrder: "asc" | "desc" = "asc"): Promise<PaginatedInstructors> {
+export async function fetchInstructors(
+  search: string | null = null,
+  page: number = 1,
+  limit: number = 10,
+  sortBy: string | null = null,
+  sortOrder: "asc" | "desc" = "asc",
+): Promise<PaginatedInstructors> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   });
 
   if (search) {
-    params.set('search', search);
+    params.set("search", search);
   }
   if (sortBy) {
-    params.set('sort_by', sortBy);
-    params.set('sort_order', sortOrder);
+    params.set("sort_by", sortBy);
+    params.set("sort_order", sortOrder);
   }
   return apiFetchJson<PaginatedInstructors>(`/instructors/?${params.toString()}`, {
     method: "GET",
@@ -44,7 +49,10 @@ export async function addInstructor(data: AddInstructorType): Promise<User> {
     body: JSON.stringify(data),
   });
 }
-export async function updateInstructor(id: number, data: Partial<EditInstructorType>): Promise<User> {
+export async function updateInstructor(
+  id: number,
+  data: Partial<EditInstructorType>,
+): Promise<User> {
   return apiFetchJson<User>(`/instructors/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -52,8 +60,7 @@ export async function updateInstructor(id: number, data: Partial<EditInstructorT
   });
 }
 
-
-export async function deleteInstructor(id: number,): Promise<void> {
+export async function deleteInstructor(id: number): Promise<void> {
   return apiFetchJson<void>(`/instructors/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },

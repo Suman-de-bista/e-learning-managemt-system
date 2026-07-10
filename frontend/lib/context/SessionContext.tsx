@@ -1,17 +1,15 @@
-'use client';
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "../types/common";
 import { getCurrentUser, logoutUser } from "../apis/auths";
 
 const SessionContext = createContext<{
-    user: User | null;
-    loading: boolean;
-    refresh: () => Promise<void>;
-    logout: () => Promise<void>;
-}
->({user: null, loading: true, refresh: async () =>{}, logout: async () =>{}});
-
+  user: User | null;
+  loading: boolean;
+  refresh: () => Promise<void>;
+  logout: () => Promise<void>;
+}>({ user: null, loading: true, refresh: async () => {}, logout: async () => {} });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);

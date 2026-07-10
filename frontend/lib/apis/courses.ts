@@ -10,18 +10,25 @@ export interface PaginatedCourses {
   total_pages: number;
 }
 
-export async function fetchCoursesByInstructorId(instructor_id: string,page: number = 1, limit: number = 10, search: string | null = null, sortBy: string | null = null, sortOrder: "asc" | "desc" = "asc"): Promise<PaginatedCourses> {
+export async function fetchCoursesByInstructorId(
+  instructor_id: string,
+  page: number = 1,
+  limit: number = 10,
+  search: string | null = null,
+  sortBy: string | null = null,
+  sortOrder: "asc" | "desc" = "asc",
+): Promise<PaginatedCourses> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: limit.toString(),
   });
 
   if (search) {
-    params.set('search', search);
+    params.set("search", search);
   }
   if (sortBy) {
-    params.set('sort_by', sortBy);
-    params.set('sort_order', sortOrder);
+    params.set("sort_by", sortBy);
+    params.set("sort_order", sortOrder);
   }
   return apiFetchJson<PaginatedCourses>(`/courses/${instructor_id}?${params}`, {
     method: "GET",

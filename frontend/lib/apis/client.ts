@@ -30,10 +30,7 @@ async function refreshAccessToken(): Promise<boolean> {
  * fetch wrapper that retries once via /auths/refresh on a 401, so callers
  * don't need to handle access-token expiry themselves.
  */
-export async function apiFetch(
-  path: string,
-  init: RequestInit = {}
-): Promise<Response> {
+export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const isRefreshCall = path === "/auths/refresh";
   const res = await fetch(`${BASE_URL}${path}`, {
     credentials: "include",
@@ -55,10 +52,7 @@ export async function apiFetch(
   });
 }
 
-export async function apiFetchJson<T>(
-  path: string,
-  init: RequestInit = {}
-): Promise<T> {
+export async function apiFetchJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await apiFetch(path, init);
   if (!res.ok) {
     throw new Error(await parseErrorMessage(res));
@@ -66,10 +60,7 @@ export async function apiFetchJson<T>(
   return res.json();
 }
 
-export async function apiFetchBlob(
-  path: string,
-  init: RequestInit = {}
-): Promise<Blob> {
+export async function apiFetchBlob(path: string, init: RequestInit = {}): Promise<Blob> {
   const res = await apiFetch(path, init);
   if (!res.ok) {
     throw new Error(await parseErrorMessage(res));

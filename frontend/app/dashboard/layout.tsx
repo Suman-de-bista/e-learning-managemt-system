@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { NavBar } from "@/components/custom/NavBar";
 import { useSession } from "@/lib/context/SessionContext";
@@ -16,8 +16,8 @@ export default function DashboardLayout({
 
   return (
     <div>
-        <NavBar/>
-        {children}
+      <NavBar />
+      {children}
     </div>
   );
 }

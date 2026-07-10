@@ -22,9 +22,9 @@ export interface Course {
   created_at: string;
 }
 
-export type CourseResponse = Omit<Course,"instructor_id"> & {
-  instructor_name:string;
-}
+export type CourseResponse = Omit<Course, "instructor_id"> & {
+  instructor_name: string;
+};
 export type InstructorResponse = Instructor & {
-  courses_count:number;
-}
+  courses_count: number;
+};
