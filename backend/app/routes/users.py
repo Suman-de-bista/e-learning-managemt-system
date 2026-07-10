@@ -1,6 +1,6 @@
 from typing import Optional
 
-from app.models.users import EditUserModel, Users
+from app.models.users import EditUserModel, SignupModel, Users
 from app.utils.auths import get_password_hash, get_user, validate_email_format
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
@@ -17,6 +17,19 @@ async def get_users(
     user = Depends(get_user)
 ):
     return await Users.get_users(page=page, limit=limit, search=search, sort_by=sort_by, sort_order=sort_order)
+
+
+@router.post("/")
+async def add_user(form_data: SignupModel, user = Depends(get_user)):
+    if not validate_email_format(form_data.email):
+        raise HTTPException(400, detail="Invalid email format")
+    if form_data.password != form_data.confirmPassword:
+        raise HTTPException(400, detail="Passwords do not match")
+    if await Users.get_user_by_email(form_data.email):
+        raise HTTPException(400, detail="Email Already Exists")
+
+    password_hash = get_password_hash(form_data.password)
+    return await Users.add_new_user(form_data.email, form_data.name, password_hash=password_hash)
 
 @router.get("/{user_id}")
 async def get_user_by_id(

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { registerUser } from "@/lib/apis/auths"
+import { addUser } from "@/lib/apis/users"
 import { registerFormSchema, RegisterFormType } from "@/lib/types/auths"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
@@ -35,7 +35,7 @@ const form = useForm<RegisterFormType>({
 
     const onAddUserSubmit = async (data: RegisterFormType) => {
         try{
-            await registerUser(data);
+            await addUser(data);
             onSuccess();
         }
         catch(error){

@@ -1,5 +1,5 @@
 import { apiFetchJson } from "@/lib/apis/client";
-import { EditUserFormType } from "../types/auths";
+import { EditUserFormType, RegisterFormType } from "../types/auths";
 import { User } from "../types/common";
 
 export interface PaginatedUsers {
@@ -39,6 +39,14 @@ export async function fetchUserById(user_id: number): Promise<User> {
   return apiFetchJson<User>(`/users/${user_id}/`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
+  });
+}
+
+export async function addUser(data: RegisterFormType): Promise<User> {
+  return apiFetchJson<User>(`/users/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   });
 }
 
