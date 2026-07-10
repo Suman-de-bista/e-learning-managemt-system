@@ -158,8 +158,6 @@ async def create_course(db_pool, create_instructor):
 @pytest.fixture
 async def auth_client(client, create_user):
     user, password = await create_user()
-    response = await client.post(
-        "/auths/login", json={"email": user.email, "password": password}
-    )
+    response = await client.post("/auths/login", json={"email": user.email, "password": password})
     assert response.status_code == 200
     return client, user

@@ -40,9 +40,7 @@ class TestUpdateUser:
 
     async def test_update_user_invalid_email(self, auth_client):
         client, user = auth_client
-        response = await client.patch(
-            f"/users/{user.id}", json={"email": "invalid-email"}
-        )
+        response = await client.patch(f"/users/{user.id}", json={"email": "invalid-email"})
         assert response.status_code == 400
 
     async def test_update_user_no_fields(self, auth_client):

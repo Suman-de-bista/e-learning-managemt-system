@@ -12,28 +12,33 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
-SECRET_KEY = os.getenv("SECRET_KEY","")
-ALGORITHM = os.getenv("ALGORITHM","HS256")
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
 
 bearer_security = HTTPBearer(auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def get_password_hash(password):
     return pwd_context.hash(password)
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def validate_email_format(email: str) -> bool:
-    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
     return re.match(email_regex, email) is not None
+
 
 def create_token(data: dict):
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     data.update({"exp": expire})
     return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
 
 def decode_token(token: str):
     try:
@@ -93,7 +98,11 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
     )
 
 
-async def get_user(request: Request, response: Response, auth_token: HTTPAuthorizationCredentials = Depends(bearer_security)) -> UserModel:
+async def get_user(
+    request: Request,
+    response: Response,
+    auth_token: HTTPAuthorizationCredentials = Depends(bearer_security),
+) -> UserModel:
     token = None
 
     if auth_token is not None:
@@ -136,5 +145,3 @@ async def _refresh_and_get_user(request: Request, response: Response) -> UserMod
     access_token = create_token({"id": user.id, "email": user.email, "name": user.name})
     set_auth_cookies(response, access_token, new_refresh_token)
     return user
-
-    

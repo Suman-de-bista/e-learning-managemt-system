@@ -17,21 +17,20 @@ async def get_courses_by_instructor_id(
     search: Optional[str] = Query(None),
     sort_by: str = "created_at",
     sort_order: str = "desc",
-    user = Depends(get_user)
+    user=Depends(get_user),
 ):
-    return await Courses.get_courses_by_instructor_id(instructor_id,page=page,limit=limit,search=search,sort_by=sort_by,sort_order=sort_order)
+    return await Courses.get_courses_by_instructor_id(
+        instructor_id, page=page, limit=limit, search=search, sort_by=sort_by, sort_order=sort_order
+    )
 
 
 @router.get("/course/{course_id}")
-async def get_course(
-    course_id: int = Path(),
-    user = Depends(get_user)
-):
+async def get_course(course_id: int = Path(), user=Depends(get_user)):
     return await Courses.get_course_by_id(course_id)
 
 
 @router.post("/")
-async def add_course(form_data: AddCourseModel, user = Depends(get_user)):
+async def add_course(form_data: AddCourseModel, user=Depends(get_user)):
     try:
         return await Courses.add_new_course(form_data)
     except ValueError as e:
@@ -39,7 +38,7 @@ async def add_course(form_data: AddCourseModel, user = Depends(get_user)):
 
 
 @router.patch("/{course_id}")
-async def update_course(course_id: int, form_data: EditCourseModel, user = Depends(get_user)):
+async def update_course(course_id: int, form_data: EditCourseModel, user=Depends(get_user)):
     updates = form_data.model_dump(exclude_unset=True, exclude_none=True)
     if not updates:
         raise HTTPException(400, detail="No fields provided to update")
@@ -50,7 +49,7 @@ async def update_course(course_id: int, form_data: EditCourseModel, user = Depen
 
 
 @router.delete("/{course_id}")
-async def delete_user(course_id: int, user = Depends(get_user)):
+async def delete_user(course_id: int, user=Depends(get_user)):
     try:
         await Courses.delete_course(course_id)
     except Exception as e:

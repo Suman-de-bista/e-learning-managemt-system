@@ -27,10 +27,12 @@ class LoginModel(BaseModel):
     email: str
     password: str
 
+
 class EditUserModel(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
+
 
 class UserResponseModel(BaseModel):
     id: int
@@ -39,6 +41,7 @@ class UserResponseModel(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
+
 
 class UserTable:
     async def add_new_user(self, email: str, name: str, password_hash: str):
@@ -81,7 +84,7 @@ class UserTable:
                 total = await conn.fetchval(
                     """SELECT COUNT(*) FROM users
                     WHERE name ILIKE $1 OR email ILIKE $1""",
-                    search_query
+                    search_query,
                 )
             else:
                 rows = await conn.fetch(
@@ -142,13 +145,10 @@ class UserTable:
                 id,
             )
             return UserResponseModel.model_validate(dict(row)) if row else None
-    
+
     async def delete_user(self, id: int):
         async with get_db() as conn:
-            row = await conn.fetchrow(
-                "DELETE FROM users WHERE id = $1 RETURNING id",
-                id
-                )
+            row = await conn.fetchrow("DELETE FROM users WHERE id = $1 RETURNING id", id)
             if not row:
                 raise HTTPException(status_code=404, detail="User not found")
 

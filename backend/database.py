@@ -6,6 +6,7 @@ from config import DATABASE_MAX_SIZE, DATABASE_MIN_SIZE, DATABASE_URL
 
 pool: asyncpg.Pool | None = None
 
+
 async def connect_db():
     global pool
     pool = await asyncpg.create_pool(
@@ -14,8 +15,10 @@ async def connect_db():
         max_size=DATABASE_MAX_SIZE,
     )
 
+
 async def close_db():
     await pool.close()
+
 
 @asynccontextmanager
 async def get_db():

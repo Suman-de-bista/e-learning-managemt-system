@@ -30,6 +30,7 @@ class EditCourseModel(BaseModel):
     level: Optional[str] = None
     duration_hours: Optional[int] = None
 
+
 class CourseResponseModel(BaseModel):
     id: int
     instructor_name: str
@@ -49,11 +50,19 @@ class CoursesTable:
                 form_data.instructor_id,
                 form_data.title,
                 form_data.level,
-                form_data.duration_hours
+                form_data.duration_hours,
             )
             return CoursesModel.model_validate(dict(row))
 
-    async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int,search: str | None, sort_by: str = "created_at",sort_order: str = "desc",):
+    async def get_courses_by_instructor_id(
+        self,
+        instructor_id: int,
+        page: int,
+        limit: int,
+        search: str | None,
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
+    ):
         SORTABLE_COLUMNS = {"id", "title", "level", "created_at"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
@@ -75,11 +84,11 @@ class CoursesTable:
                         offset,
                     )
                     total = await conn.fetchval(
-                                """SELECT COUNT(*) FROM courses
+                        """SELECT COUNT(*) FROM courses
                                 WHERE instructor_id = $1
                                     AND (title ILIKE $2 OR level ILIKE $2)""",
-                                instructor_id,
-                                search_query,
+                        instructor_id,
+                        search_query,
                     )
                 else:
                     rows = await conn.fetch(
@@ -93,9 +102,9 @@ class CoursesTable:
                         offset,
                     )
                     total = await conn.fetchval(
-                                """SELECT COUNT(*) FROM courses
+                        """SELECT COUNT(*) FROM courses
                                 WHERE instructor_id = $1""",
-                                instructor_id,
+                        instructor_id,
                     )
                 return {
                     "items": [CourseResponseModel.model_validate(dict(row)) for row in rows],
@@ -106,7 +115,6 @@ class CoursesTable:
                 }
             except Exception as e:
                 raise HTTPException(status_code=400, detail=str(e))
-
 
     async def get_course_by_id(self, id: int):
         async with get_db() as conn:
@@ -134,13 +142,10 @@ class CoursesTable:
                 id,
             )
             return CoursesModel.model_validate(dict(row)) if row else None
-    
+
     async def delete_course(self, id: int):
         async with get_db() as conn:
-            row = await conn.fetchrow(
-                "DELETE FROM courses WHERE id = $1 RETURNING id",
-                id
-                )
+            row = await conn.fetchrow("DELETE FROM courses WHERE id = $1 RETURNING id", id)
             if not row:
                 raise HTTPException(status_code=404, detail="Course not found")
 

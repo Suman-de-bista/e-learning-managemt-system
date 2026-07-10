@@ -7,6 +7,7 @@ from config import DATABASE_URL
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
+
 async def run_migrations():
     conn = await asyncpg.connect(DATABASE_URL)
     try:
@@ -17,7 +18,9 @@ async def run_migrations():
             )
         """)
 
-        applied = {r["filename"] for r in await conn.fetch("SELECT filename FROM schema_migrations")}
+        applied = {
+            r["filename"] for r in await conn.fetch("SELECT filename FROM schema_migrations")
+        }
         print(f"Applied migrations: {sorted(applied)}")
         print(f"Available migrations: {sorted(f.name for f in MIGRATIONS_DIR.glob('*.sql'))}")
         for file in sorted(MIGRATIONS_DIR.glob("*.sql")):
@@ -33,6 +36,7 @@ async def run_migrations():
 
     finally:
         await conn.close()
+
 
 if __name__ == "__main__":
     asyncio.run(run_migrations())

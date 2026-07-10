@@ -51,9 +51,7 @@ class TestUpdateInstructor:
     async def test_update_instructor(self, auth_client, create_instructor):
         client, _ = auth_client
         instructor = await create_instructor()
-        response = await client.patch(
-            f"/instructors/{instructor.id}", json={"expertise": "test2"}
-        )
+        response = await client.patch(f"/instructors/{instructor.id}", json={"expertise": "test2"})
         assert response.status_code == 200
         assert response.json()["expertise"] == "test2"
 

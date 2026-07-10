@@ -45,9 +45,7 @@ class TestListCoursesByInstructor:
         client, _ = auth_client
         instructor = await create_instructor()
         await create_course(instructor_id=instructor.id, title="test2")
-        response = await client.get(
-            f"/courses/{instructor.id}", params={"search": "test2"}
-        )
+        response = await client.get(f"/courses/{instructor.id}", params={"search": "test2"})
         assert response.status_code == 200
         assert response.json()["total"] == 1
 
@@ -65,9 +63,7 @@ class TestUpdateCourse:
     async def test_update_course(self, auth_client, create_course):
         client, _ = auth_client
         course = await create_course()
-        response = await client.patch(
-            f"/courses/{course.id}", json={"title": "test2"}
-        )
+        response = await client.patch(f"/courses/{course.id}", json={"title": "test2"})
         assert response.status_code == 200
         assert response.json()["title"] == "test2"
 

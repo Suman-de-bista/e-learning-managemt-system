@@ -28,6 +28,7 @@ class EditInstructorModel(BaseModel):
     expertise: Optional[str] = None
     bio: Optional[str] = None
 
+
 class InstructorResponseModel(BaseModel):
     id: int
     name: str
@@ -46,11 +47,18 @@ class InstructorTable:
                    RETURNING id, name, expertise, bio, created_at""",
                 form_data.name,
                 form_data.expertise,
-                form_data.bio
+                form_data.bio,
             )
             return InstructorModel.model_validate(dict(row))
 
-    async def get_instructors(self, page: int, limit: int,  search: str | None = None, sort_by: str = "created_at", sort_order: str = "desc",):
+    async def get_instructors(
+        self,
+        page: int,
+        limit: int,
+        search: str | None = None,
+        sort_by: str = "created_at",
+        sort_order: str = "desc",
+    ):
         SORTABLE_COLUMNS = {"id", "name", "expertise", "bio", "created_at"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
@@ -71,10 +79,10 @@ class InstructorTable:
                         offset,
                     )
                     total = await conn.fetchval(
-                            """SELECT COUNT(*) FROM instructors
+                        """SELECT COUNT(*) FROM instructors
                             WHERE name ILIKE $1 OR expertise ILIKE $1""",
-                            search_query,
-                        )
+                        search_query,
+                    )
                 else:
                     rows = await conn.fetch(
                         f"""SELECT i.id, i.name, i.expertise, i.bio, i.created_at, COUNT(c.id) AS courses_count FROM instructors i
@@ -95,7 +103,7 @@ class InstructorTable:
                 }
             except Exception as e:
                 raise HTTPException(status_code=400, detail=str(e))
-    
+
     async def get_all_instructors(self):
         async with get_db() as conn:
             async with conn.transaction():
@@ -103,7 +111,6 @@ class InstructorTable:
                     """SELECT id, name, expertise, bio, created_at FROM instructors ORDER BY id""",
                 ):
                     yield InstructorModel.model_validate(dict(row))
-
 
     async def get_instructor_by_id(self, id: int):
         async with get_db() as conn:
@@ -131,34 +138,33 @@ class InstructorTable:
                 id,
             )
             return InstructorModel.model_validate(dict(row)) if row else None
-    
+
     async def delete_instructor(self, id: int):
         async with get_db() as conn:
-            row = await conn.fetchrow(
-                "DELETE FROM instructors WHERE id = $1 RETURNING id",
-                id
-                )
+            row = await conn.fetchrow("DELETE FROM instructors WHERE id = $1 RETURNING id", id)
             if not row:
                 raise HTTPException(status_code=404, detail="Instructor not found")
 
             return {"message": "Instructor deleted successfully"}
-    
 
-    async def add_instructors_from_csv(self, names:list[str], expertises: list[str], bio: list[str]):
+    async def add_instructors_from_csv(
+        self, names: list[str], expertises: list[str], bio: list[str]
+    ):
         async with get_db() as conn:
             try:
                 result = await conn.fetch(
-                                """
+                    """
                                 INSERT INTO instructors (name, expertise, bio)
                                 SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[])
                                 RETURNING id
                                 """,
-                                names, expertises, bio,
-                            )
+                    names,
+                    expertises,
+                    bio,
+                )
                 return result
             except Exception as e:
                 raise HTTPException(status_code=400, detail=str(e))
-
 
 
 Instructors = InstructorTable()

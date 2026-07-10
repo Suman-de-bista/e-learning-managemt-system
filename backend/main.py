@@ -9,8 +9,9 @@ from app.routes.courses import router as courses_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 @asynccontextmanager
-async def Lifespan(app:FastAPI):
+async def Lifespan(app: FastAPI):
     await connect_db()
     yield
     await close_db()
@@ -19,16 +20,16 @@ async def Lifespan(app:FastAPI):
 app = FastAPI(
     title="E-Learning Management System",
     description="An API for managing e-learning courses, users, and content.",
-    lifespan=Lifespan
-    )
+    lifespan=Lifespan,
+)
 
 # Add the CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],            
-    allow_headers=["*"],              
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

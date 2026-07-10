@@ -14,13 +14,15 @@ async def get_users(
     search: Optional[str] = Query(None),
     sort_by: str = Query("created_at"),
     sort_order: str = Query("desc"),
-    user = Depends(get_user)
+    user=Depends(get_user),
 ):
-    return await Users.get_users(page=page, limit=limit, search=search, sort_by=sort_by, sort_order=sort_order)
+    return await Users.get_users(
+        page=page, limit=limit, search=search, sort_by=sort_by, sort_order=sort_order
+    )
 
 
 @router.post("/")
-async def add_user(form_data: SignupModel, user = Depends(get_user)):
+async def add_user(form_data: SignupModel, user=Depends(get_user)):
     if not validate_email_format(form_data.email):
         raise HTTPException(400, detail="Invalid email format")
     if form_data.password != form_data.confirmPassword:
@@ -31,16 +33,14 @@ async def add_user(form_data: SignupModel, user = Depends(get_user)):
     password_hash = get_password_hash(form_data.password)
     return await Users.add_new_user(form_data.email, form_data.name, password_hash=password_hash)
 
+
 @router.get("/{user_id}")
-async def get_user_by_id(
-    user_id: int = Path(),
-    user = Depends(get_user)
-):
+async def get_user_by_id(user_id: int = Path(), user=Depends(get_user)):
     return await Users.get_user_by_id(user_id)
 
 
 @router.patch("/{user_id}")
-async def update_user(user_id: int, form_data: EditUserModel, user = Depends(get_user)):
+async def update_user(user_id: int, form_data: EditUserModel, user=Depends(get_user)):
     updates = form_data.model_dump(exclude_unset=True, exclude_none=True)
     if not updates:
         raise HTTPException(400, detail="No fields provided to update")
@@ -56,7 +56,7 @@ async def update_user(user_id: int, form_data: EditUserModel, user = Depends(get
 
 
 @router.delete("/{user_id}")
-async def delete_user(user_id: int, user = Depends(get_user)):
+async def delete_user(user_id: int, user=Depends(get_user)):
     if user.id == user_id:
         raise HTTPException(403, detail="Cannot delete own account.")
     try:
