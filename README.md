@@ -7,8 +7,8 @@ A full-stack e-learning platform for managing courses, instructors, and students
 
 ## Live Demo
 
-- Frontend: `<add your Vercel URL here after deploying>`
-- Backend API docs (Swagger UI): `<add your Render URL here>/docs`
+- Frontend: `https://e-learning-managemt-system.vercel.app/`
+- Backend API docs (Swagger UI): `https://elearning-backend-05nb.onrender.com/docs`
 
 > These placeholders should be replaced once the app is deployed following the [Deployment](#deployment) section below.
 
@@ -95,6 +95,27 @@ cd backend
 uv run pytest
 ```
 
+## Linting & Formatting
+
+### Backend (Ruff)
+
+```bash
+cd backend
+uv run ruff check .            # lint
+uv run ruff check . --fix      # lint, auto-fixing what it can
+uv run ruff format .            # format
+uv run ruff format --check .    # check formatting without writing
+```
+
+### Frontend (ESLint + Prettier)
+
+```bash
+cd frontend
+npm run lint            # lint
+npm run format           # format (writes changes)
+npm run format:check     # check formatting without writing
+```
+
 ## Environment Variables
 
 ### Backend (`backend/.env`)
@@ -115,7 +136,7 @@ uv run pytest
 
 | Variable | Description | Default |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | Base URL of the backend API | `http://localhost:8000` |
+| `NEXT_PUBLIC_API_URL` | Base URL of the backend API. Used server-side by `next.config.ts` (rewrites) and `proxy.ts`; the browser never calls this URL directly (see note below) | `http://localhost:8000` |
 
 ## Deployment
 
@@ -144,3 +165,9 @@ The demo is deployed with the **frontend on Vercel** and the **backend + databas
 1. Back in Render, update the backend's `ALLOWED_ORIGINS` env var to include the Vercel frontend URL (comma-separated if you need to keep `http://localhost:3000` too), then redeploy.
 2. Verify login works end-to-end on the deployed frontend URL — check the browser's dev tools to confirm `access_token`/`refresh_token` cookies are being set.
 3. Update the [Live Demo](#live-demo) links at the top of this README with the real URLs.
+
+### Note: cross-domain cookies
+
+Since the frontend (Vercel) and backend (Render) are on different domains, cookies set directly by the backend are treated by the browser as **third-party cookies** and get silently dropped even with `Secure; SameSite=None` set correctly — Chrome, Safari, and Firefox all block or partition third-party cookies by default.
+
+To work around this, `next.config.ts` defines a rewrite (`/api/backend/:path* → NEXT_PUBLIC_API_URL/:path*`), and all browser-side API calls (`lib/apis/*.ts`) go through `/api/backend` instead of calling the Render URL directly. Next.js's server forwards the request/response (including `Set-Cookie`) transparently, so from the browser's perspective the cookie comes from the same site it's on (first-party) and is stored normally. Server-side code (`proxy.ts`) is unaffected and continues to call the backend URL directly, since that's a server-to-server call with no browser cookie jar involved.
