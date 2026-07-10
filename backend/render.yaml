@@ -9,7 +9,7 @@ services:
     runtime: python
     plan: free
     rootDir: backend
-    buildCommand: "pip install uv && uv sync --frozen"
+    buildCommand: "pip install uv && UV_PYTHON_DOWNLOADS=automatic uv sync --frozen"
     startCommand: "uv run python migrate.py && uv run uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
