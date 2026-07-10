@@ -29,7 +29,7 @@ export async function fetchUsers(
     params.set('sort_by', sortBy);
     params.set('sort_order', sortOrder);
   }
-  return apiFetchJson<PaginatedUsers>(`/users?${params.toString()}`, {
+  return apiFetchJson<PaginatedUsers>(`/users/?${params.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });

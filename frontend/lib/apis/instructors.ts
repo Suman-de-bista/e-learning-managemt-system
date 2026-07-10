@@ -24,7 +24,7 @@ export async function fetchInstructors(search: string | null = null, page: numbe
     params.set('sort_by', sortBy);
     params.set('sort_order', sortOrder);
   }
-  return apiFetchJson<PaginatedInstructors>(`/instructors?${params.toString()}`, {
+  return apiFetchJson<PaginatedInstructors>(`/instructors/?${params.toString()}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
