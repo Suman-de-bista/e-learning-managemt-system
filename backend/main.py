@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from config import ALLOWED_ORIGINS
 from database import close_db, connect_db
 from app.routes.auths import router as auths_router
 from app.routes.users import router as users_router
@@ -24,7 +25,7 @@ app = FastAPI(
 # Add the CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],   
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],            
     allow_headers=["*"],              

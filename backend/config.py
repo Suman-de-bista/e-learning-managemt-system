@@ -21,3 +21,9 @@ REFRESH_TOKEN_EXPIRE_DAYS: int = int(getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 REFRESH_TOKEN_COOKIE_NAME: str = getenv("REFRESH_TOKEN_COOKIE_NAME", "refresh_token")
 COOKIE_SECURE: bool = getenv("COOKIE_SECURE", "false").lower() == "true"
 COOKIE_SAMESITE: str = getenv("COOKIE_SAMESITE", "lax")
+
+ALLOWED_ORIGINS: list[str] = [
+    origin.strip()
+    for origin in getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
