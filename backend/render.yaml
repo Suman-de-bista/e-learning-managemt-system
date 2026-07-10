@@ -6,14 +6,11 @@ databases:
 services:
   - type: web
     name: elearning-backend
-    runtime: python
+    runtime: docker
     plan: free
     rootDir: backend
-    buildCommand: "pip install uv && uv python install 3.13 && uv sync --frozen"
-    startCommand: "uv run python migrate.py && uv run uvicorn main:app --host 0.0.0.0 --port $PORT"
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: UV_PYTHON_DOWNLOADS
-        value: automatic
       - key: DATABASE_URL
         fromDatabase:
           name: elearning-db
