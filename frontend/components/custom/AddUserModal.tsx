@@ -36,16 +36,23 @@ const form = useForm<RegisterFormType>({
     const onAddUserSubmit = async (data: RegisterFormType) => {
         try{
             await addUser(data);
+            form.reset();
             onSuccess();
         }
         catch(error){
             toast.error("Failed Adding User.")
         }
     }
+
+    const handleClose = () => {
+        form.reset();
+        onClose();
+    }
+
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <Dialog open={isOpen} onOpenChange={(open)=> !open && onClose()}>
+            <Dialog open={isOpen} onOpenChange={(open)=> !open && handleClose()}>
                 <form id="addNewUser" onSubmit={form.handleSubmit(onAddUserSubmit)}>
                     <DialogContent className="sm:max-w-sm">
                         <DialogHeader>

@@ -35,16 +35,23 @@ const form = useForm<AddInstructorType>({
     const onAddInstructorSubmit = async (data: AddInstructorType) => {
         try{
             await addInstructor(data);
+            form.reset();
             onSuccess();
         }
         catch(error){
             toast.error("Failed Adding Instructor.")
         }
     }
+
+    const handleClose = () => {
+        form.reset();
+        onClose();
+    }
+
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <Dialog open={isOpen} onOpenChange={(open)=> !open && onClose()}>
+            <Dialog open={isOpen} onOpenChange={(open)=> !open && handleClose()}>
                 <form id="addNewInstructor" onSubmit={form.handleSubmit(onAddInstructorSubmit)}>
                     <DialogContent className="sm:max-w-sm">
                         <DialogHeader>

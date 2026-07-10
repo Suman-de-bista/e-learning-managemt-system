@@ -37,17 +37,24 @@ export function AddCourseModal({ instructorId, isOpen, onClose, onSuccess }: Add
     const onAddCourseSubmit = async (data: AddCourseType) => {
         try{
             await addCourse(data);
+            form.reset();
             onSuccess();
         }
         catch(error){
             toast.error("Failed Adding Course.")
         }
-        
+
     }
+
+    const handleClose = () => {
+        form.reset();
+        onClose();
+    }
+
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
                 <form id="addNewCourse" onSubmit={form.handleSubmit(onAddCourseSubmit)}>
                     <DialogContent className="sm:max-w-sm">
                         <DialogHeader>
