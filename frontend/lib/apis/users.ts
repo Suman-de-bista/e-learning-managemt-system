@@ -36,7 +36,7 @@ export async function fetchUsers(
 }
 
 export async function fetchUserById(user_id: number): Promise<User> {
-  return apiFetchJson<User>(`/users/${user_id}/`, {
+  return apiFetchJson<User>(`/users/${user_id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
