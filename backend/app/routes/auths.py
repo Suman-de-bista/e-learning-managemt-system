@@ -20,7 +20,7 @@ pwd_context = CryptContext(schemes=["bcrypt"])
 
 
 @router.post("/signup")
-async def signup(response:Response,form_data: SignupModel):
+async def signup(form_data: SignupModel):
     try:
         if not validate_email_format(form_data.email):
             raise HTTPException(400, detail="Invalid email format")
@@ -28,14 +28,6 @@ async def signup(response:Response,form_data: SignupModel):
             password_hash = get_password_hash(form_data.password)
             user = await Users.add_new_user(form_data.email, form_data.name, password_hash=password_hash)
             if user:
-                payload = {
-                    "id": user.id,
-                    "email": user.email,
-                    "name": user.name
-                }
-                access_token = create_token(payload)
-                refresh_token = await create_refresh_token(user.id)
-                set_auth_cookies(response, access_token, refresh_token)
                 return user
         raise HTTPException(400, detail="Email Already Exists")
     except ValueError as e:

@@ -17,8 +17,8 @@ class TestSignup:
         assert body["name"] == "test"
         assert body["email"] == "test@example.com"
         assert "password" not in body
-        assert "access_token" in response.cookies
-        assert "refresh_token" in response.cookies
+        assert "access_token" not in response.cookies
+        assert "refresh_token" not in response.cookies
 
     async def test_signup_duplicate_email_rejected(self, client, create_user):
         user, _ = await create_user(email="test1@example.com")
