@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
-export type CourseSortKey = "title" | "level";
+export type CourseSortKey = "title" | "level" | "created_at";
 export type SortDirection = "asc" | "desc";
 
 interface CoursesTableProps {
@@ -58,6 +58,13 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete, sortKey, so
                 Level{renderSortIcon("level")}
               </TableHead>
               <TableHead key="duration_hours">Duration Hours</TableHead>
+              <TableHead
+                key="created_at"
+                className="cursor-pointer select-none"
+                onClick={() => onSortChange?.("created_at")}
+              >
+                Created At{renderSortIcon("created_at")}
+              </TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -67,7 +74,7 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete, sortKey, so
             onClick={onAdd}
           >
             <TableCell
-              colSpan={6}
+              colSpan={7}
               className="font-medium text-center"
             >
               + Add New Course
@@ -80,6 +87,7 @@ export function CourseTable({courses , onEditClick, onAdd, onDelete, sortKey, so
                 <TableCell key="title">{course["title"]}</TableCell>
                 <TableCell key="level">{course["level"]}</TableCell>
                 <TableCell key="duration_hours">{course["duration_hours"]}</TableCell>
+                <TableCell key="created_at">{new Date(course["created_at"]).toLocaleString()}</TableCell>
               <TableCell className="text-right">
                 <TableRowMenu id={course.id} onEdit={onEditClick} onDelete={onDelete}/>
               </TableCell>

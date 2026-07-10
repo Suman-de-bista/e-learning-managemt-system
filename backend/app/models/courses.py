@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
@@ -12,6 +13,7 @@ class CoursesModel(BaseModel):
     title: str
     level: str
     duration_hours: int
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
@@ -34,6 +36,7 @@ class CourseResponseModel(BaseModel):
     title: str
     level: str
     duration_hours: int
+    created_at: datetime
 
 
 class CoursesTable:
@@ -42,7 +45,7 @@ class CoursesTable:
             row = await conn.fetchrow(
                 """INSERT INTO courses (instructor_id, title, level, duration_hours)
                    VALUES ($1, $2, $3, $4)
-                   RETURNING id, instructor_id, title, level, duration_hours""",
+                   RETURNING id, instructor_id, title, level, duration_hours, created_at""",
                 form_data.instructor_id,
                 form_data.title,
                 form_data.level,
@@ -51,7 +54,7 @@ class CoursesTable:
             return CoursesModel.model_validate(dict(row))
 
     async def get_courses_by_instructor_id(self,instructor_id:int, page: int, limit: int,search: str | None, sort_by: str = "created_at",sort_order: str = "desc",):
-        SORTABLE_COLUMNS = {"id", "title", "level"}
+        SORTABLE_COLUMNS = {"id", "title", "level", "created_at"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
         direction = "DESC" if sort_order.lower() == "desc" else "ASC"
@@ -60,7 +63,7 @@ class CoursesTable:
                 if search:
                     search_query = f"%{search}%"
                     rows = await conn.fetch(
-                        f"""SELECT c.id, i.name AS instructor_name, c.title, c.level, c.duration_hours FROM courses c
+                        f"""SELECT c.id, i.name AS instructor_name, c.title, c.level, c.duration_hours, c.created_at FROM courses c
                         INNER JOIN instructors i ON c.instructor_id = i.id
                         WHERE instructor_id = $1
                         AND (c.title ILIKE $2 OR c.level ILIKE $2)
@@ -80,7 +83,7 @@ class CoursesTable:
                     )
                 else:
                     rows = await conn.fetch(
-                        f"""SELECT courses.id, instructors.name AS instructor_name, title, level, duration_hours FROM courses
+                        f"""SELECT courses.id, instructors.name AS instructor_name, title, level, duration_hours, courses.created_at FROM courses
                         INNER JOIN instructors ON courses.instructor_id = instructors.id
                         WHERE instructor_id = $1
                         ORDER BY courses.{column} {direction}
@@ -108,7 +111,7 @@ class CoursesTable:
     async def get_course_by_id(self, id: int):
         async with get_db() as conn:
             row = await conn.fetchrow(
-                """SELECT id, instructor_id, title, level, duration_hours FROM courses WHERE id = $1""",
+                """SELECT id, instructor_id, title, level, duration_hours, created_at FROM courses WHERE id = $1""",
                 id,
             )
             return CoursesModel.model_validate(dict(row)) if row else None
@@ -126,7 +129,7 @@ class CoursesTable:
             row = await conn.fetchrow(
                 f"""UPDATE courses SET {set_clause}, updated_at = now()
                     WHERE id = ${len(columns) + 1}
-                    RETURNING id, instructor_id, title, level, duration_hours""",
+                    RETURNING id, instructor_id, title, level, duration_hours, created_at""",
                 *values,
                 id,
             )

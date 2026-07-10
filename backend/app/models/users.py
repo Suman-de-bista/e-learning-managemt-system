@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
@@ -35,6 +36,7 @@ class UserResponseModel(BaseModel):
     id: int
     name: str
     email: str
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
@@ -44,14 +46,14 @@ class UserTable:
             row = await conn.fetchrow(
                 """INSERT INTO users (email, name, password)
                    VALUES ($1, $2, $3)
-                   RETURNING id, name, email""",
+                   RETURNING id, name, email, created_at""",
                 email,
                 name,
                 password_hash,
             )
             return UserResponseModel.model_validate(dict(row))
 
-    SORTABLE_COLUMNS = {"id", "name", "email"}
+    SORTABLE_COLUMNS = {"id", "name", "email", "created_at"}
 
     async def get_users(
         self,
@@ -68,7 +70,7 @@ class UserTable:
             if search:
                 search_query = f"%{search}%"
                 rows = await conn.fetch(
-                    f"""SELECT id, name, email FROM users
+                    f"""SELECT id, name, email, created_at FROM users
                     WHERE name ILIKE $1 OR email ILIKE $1
                     ORDER BY {column} {direction}
                     LIMIT $2 OFFSET $3""",
@@ -83,7 +85,7 @@ class UserTable:
                 )
             else:
                 rows = await conn.fetch(
-                    f"""SELECT id, name, email FROM users
+                    f"""SELECT id, name, email, created_at FROM users
                     ORDER BY {column} {direction}
                     LIMIT $1 OFFSET $2""",
                     limit,
@@ -109,7 +111,7 @@ class UserTable:
     async def get_user_by_email(self, email: str):
         async with get_db() as conn:
             row = await conn.fetchrow(
-                """SELECT id, name, email FROM users WHERE email = $1""",
+                """SELECT id, name, email, created_at FROM users WHERE email = $1""",
                 email,
             )
             return UserResponseModel.model_validate(dict(row)) if row else None
@@ -117,7 +119,7 @@ class UserTable:
     async def get_user_by_id(self, id: int):
         async with get_db() as conn:
             row = await conn.fetchrow(
-                """SELECT id, name, email FROM users WHERE id = $1""",
+                """SELECT id, name, email, created_at FROM users WHERE id = $1""",
                 id,
             )
             return UserResponseModel.model_validate(dict(row)) if row else None
@@ -135,7 +137,7 @@ class UserTable:
             row = await conn.fetchrow(
                 f"""UPDATE users SET {set_clause}, updated_at = now()
                     WHERE id = ${len(columns) + 1}
-                    RETURNING id, name, email""",
+                    RETURNING id, name, email, created_at""",
                 *values,
                 id,
             )

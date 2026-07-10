@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
@@ -11,6 +12,7 @@ class InstructorModel(BaseModel):
     name: str
     expertise: str
     bio: str
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
@@ -32,6 +34,7 @@ class InstructorResponseModel(BaseModel):
     expertise: str
     bio: str
     courses_count: int
+    created_at: datetime
 
 
 class InstructorTable:
@@ -40,7 +43,7 @@ class InstructorTable:
             row = await conn.fetchrow(
                 """INSERT INTO instructors (name, expertise, bio)
                    VALUES ($1, $2, $3)
-                   RETURNING id, name, expertise, bio""",
+                   RETURNING id, name, expertise, bio, created_at""",
                 form_data.name,
                 form_data.expertise,
                 form_data.bio
@@ -48,7 +51,7 @@ class InstructorTable:
             return InstructorModel.model_validate(dict(row))
 
     async def get_instructors(self, page: int, limit: int,  search: str | None = None, sort_by: str = "created_at", sort_order: str = "desc",):
-        SORTABLE_COLUMNS = {"id", "name", "expertise", "bio"}
+        SORTABLE_COLUMNS = {"id", "name", "expertise", "bio", "created_at"}
         offset = (page - 1) * limit
         column = sort_by if sort_by in SORTABLE_COLUMNS else "id"
         direction = "DESC" if sort_order.lower() == "desc" else "ASC"
@@ -57,10 +60,10 @@ class InstructorTable:
                 if search:
                     search_query = f"%{search}%"
                     rows = await conn.fetch(
-                        f"""SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        f"""SELECT i.id, i.name, i.expertise, i.bio, i.created_at, COUNT(c.id) AS courses_count FROM instructors i
                         LEFT JOIN courses c ON c.instructor_id = i.id
                         WHERE i.name ILIKE $1 OR i.expertise ILIKE $1 OR i.bio ILIKE $1
-                        GROUP BY i.id, i.name, i.expertise, i.bio
+                        GROUP BY i.id, i.name, i.expertise, i.bio, i.created_at
                         ORDER BY {column} {direction}
                         LIMIT $2 OFFSET $3""",
                         search_query,
@@ -74,9 +77,9 @@ class InstructorTable:
                         )
                 else:
                     rows = await conn.fetch(
-                        f"""SELECT i.id, i.name, i.expertise, i.bio, COUNT(c.id) AS courses_count FROM instructors i
+                        f"""SELECT i.id, i.name, i.expertise, i.bio, i.created_at, COUNT(c.id) AS courses_count FROM instructors i
                         LEFT JOIN courses c ON c.instructor_id = i.id
-                        GROUP BY i.id, i.name, i.expertise, i.bio
+                        GROUP BY i.id, i.name, i.expertise, i.bio, i.created_at
                         ORDER BY {column} {direction}
                         LIMIT $1 OFFSET $2""",
                         limit,
@@ -97,7 +100,7 @@ class InstructorTable:
         async with get_db() as conn:
             async with conn.transaction():
                 async for row in conn.cursor(
-                    """SELECT id, name, expertise, bio FROM instructors ORDER BY id""",
+                    """SELECT id, name, expertise, bio, created_at FROM instructors ORDER BY id""",
                 ):
                     yield InstructorModel.model_validate(dict(row))
 
@@ -105,7 +108,7 @@ class InstructorTable:
     async def get_instructor_by_id(self, id: int):
         async with get_db() as conn:
             row = await conn.fetchrow(
-                """SELECT id, name, expertise, bio FROM instructors WHERE id = $1""",
+                """SELECT id, name, expertise, bio, created_at FROM instructors WHERE id = $1""",
                 id,
             )
             return InstructorModel.model_validate(dict(row)) if row else None
@@ -123,7 +126,7 @@ class InstructorTable:
             row = await conn.fetchrow(
                 f"""UPDATE instructors SET {set_clause}, updated_at = now()
                     WHERE id = ${len(columns) + 1}
-                    RETURNING id, name, expertise, bio""",
+                    RETURNING id, name, expertise, bio, created_at""",
                 *values,
                 id,
             )

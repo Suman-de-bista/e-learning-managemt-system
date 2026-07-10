@@ -11,7 +11,7 @@ import { User } from "@/lib/types/common";
 import { TableRowMenu } from "./TableRowMenu";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
-export type UserSortKey = "name" | "email";
+export type UserSortKey = "name" | "email" | "created_at";
 export type SortDirection = "asc" | "desc";
 
 interface UserTableProps {
@@ -61,6 +61,13 @@ export function UserTable({
             >
               Email{renderSortIcon("email")}
             </TableHead>
+            <TableHead
+              key="created_at"
+              className="cursor-pointer select-none"
+              onClick={() => onSortChange?.("created_at")}
+            >
+              Created At{renderSortIcon("created_at")}
+            </TableHead>
           {/* ))} */}
           <TableHead></TableHead>
         </TableRow>
@@ -71,7 +78,7 @@ export function UserTable({
           onClick={onAdd}
         >
           <TableCell
-            colSpan={4}
+            colSpan={5}
             className="font-medium text-center"
           >
             + Add New User
@@ -82,6 +89,7 @@ export function UserTable({
               <TableCell key="sn">{index+1}</TableCell>
               <TableCell key="name">{user["name"]}</TableCell>
               <TableCell key="email">{user["email"]}</TableCell>
+              <TableCell key="created_at">{new Date(user["created_at"]).toLocaleString()}</TableCell>
             <TableCell className="text-right">
               <TableRowMenu id={user.id} onEdit={onEditClick} onDelete={onDelete}/>
             </TableCell>

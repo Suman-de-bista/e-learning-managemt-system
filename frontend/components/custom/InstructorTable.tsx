@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
-export type InstructorSortKey = "name" | "expertise" | "bio";
+export type InstructorSortKey = "name" | "expertise" | "bio" | "created_at";
 export type SortDirection = "asc" | "desc";
 
 interface InstructorTableProps {
@@ -63,6 +63,13 @@ export function InstructorTable({ instructors, onAdd, onEditClick, onDelete, sor
           >
             Bio{renderSortIcon("bio")}
           </TableHead>
+          <TableHead
+            key="created_at"
+            className="cursor-pointer select-none"
+            onClick={() => onSortChange?.("created_at")}
+          >
+            Created At{renderSortIcon("created_at")}
+          </TableHead>
           <TableHead></TableHead>
           <TableHead></TableHead>
         </TableRow>
@@ -73,7 +80,7 @@ export function InstructorTable({ instructors, onAdd, onEditClick, onDelete, sor
           onClick={onAdd}
         >
           <TableCell
-            colSpan={6}
+            colSpan={7}
             className="font-medium text-center"
           >
             + Add New Instructor
@@ -85,6 +92,7 @@ export function InstructorTable({ instructors, onAdd, onEditClick, onDelete, sor
             <TableCell key="name">{instructor["name"]}</TableCell>
             <TableCell key="expertise">{instructor["expertise"]}</TableCell>
             <TableCell key="bio">{instructor["bio"]}</TableCell>
+            <TableCell key="created_at">{new Date(instructor["created_at"]).toLocaleString()}</TableCell>
             <TableCell className="text-right">
               <Button onClick={() => router.push(`/dashboard/instructor/${instructor.id}/courses`)} className="cursor-pointer">View {instructor["courses_count"]} Courses</Button>
             </TableCell>
